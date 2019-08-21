@@ -34,7 +34,7 @@ class Ui(QtWidgets.QMainWindow):
     
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi('firstgui.ui', self)
+        uic.loadUi('gui.ui', self)
         path =''
         text = open('README.MD').read()
         self.textBrowser.setPlainText(text)
