@@ -34,6 +34,11 @@ class Ui_MainWindow(object):
 "    border-radius: 1px;\n"
 "    margin-top: 0.5em;\n"
 "}\n"
+"\n"
+"QWidget {\n"
+"    \n"
+"    background-color: rgb(189, 189, 189);\n"
+"}\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -45,6 +50,7 @@ class Ui_MainWindow(object):
         font.setUnderline(False)
         font.setWeight(75)
         self.groupBox.setFont(font)
+        self.groupBox.setStyleSheet("background-color: rgb(154, 154, 154);")
         self.groupBox.setObjectName("groupBox")
         self.tdStart = QtWidgets.QPushButton(self.groupBox)
         self.tdStart.setGeometry(QtCore.QRect(440, 180, 93, 28))
@@ -59,6 +65,7 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
         self.tdFileText = QtWidgets.QLineEdit(self.groupBox)
         self.tdFileText.setGeometry(QtCore.QRect(30, 100, 531, 21))
+        self.tdFileText.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.tdFileText.setObjectName("tdFileText")
         self.tdBrowse = QtWidgets.QPushButton(self.groupBox)
         self.tdBrowse.setGeometry(QtCore.QRect(440, 140, 93, 28))
@@ -75,12 +82,14 @@ class Ui_MainWindow(object):
         self.decadesTDCheck.setObjectName("decadesTDCheck")
         self.tDArea = QtWidgets.QLineEdit(self.groupBox)
         self.tDArea.setGeometry(QtCore.QRect(80, 190, 71, 22))
+        self.tDArea.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.tDArea.setObjectName("tDArea")
         self.label = QtWidgets.QLabel(self.groupBox)
         self.label.setGeometry(QtCore.QRect(30, 190, 41, 16))
         self.label.setObjectName("label")
         self.tdCombine = QtWidgets.QLineEdit(self.groupBox)
         self.tdCombine.setGeometry(QtCore.QRect(210, 160, 131, 22))
+        self.tdCombine.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.tdCombine.setObjectName("tdCombine")
         self.label_5 = QtWidgets.QLabel(self.groupBox)
         self.label_5.setGeometry(QtCore.QRect(210, 190, 181, 16))
@@ -97,6 +106,7 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.groupBox_2.setFont(font)
+        self.groupBox_2.setStyleSheet("background-color: rgb(154, 154, 154);")
         self.groupBox_2.setObjectName("groupBox_2")
         self.xrdStart = QtWidgets.QPushButton(self.groupBox_2)
         self.xrdStart.setGeometry(QtCore.QRect(440, 190, 93, 28))
@@ -107,6 +117,7 @@ class Ui_MainWindow(object):
         self.label_3.setObjectName("label_3")
         self.xrdFileText = QtWidgets.QLineEdit(self.groupBox_2)
         self.xrdFileText.setGeometry(QtCore.QRect(30, 100, 531, 22))
+        self.xrdFileText.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.xrdFileText.setObjectName("xrdFileText")
         self.xrdBrowse = QtWidgets.QPushButton(self.groupBox_2)
         self.xrdBrowse.setGeometry(QtCore.QRect(440, 150, 93, 28))
@@ -119,14 +130,16 @@ class Ui_MainWindow(object):
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
         self.xrdProgress = QtWidgets.QProgressBar(self.groupBox_2)
-        self.xrdProgress.setGeometry(QtCore.QRect(190, 50, 371, 20))
+        self.xrdProgress.setGeometry(QtCore.QRect(190, 50, 371, 16))
         self.xrdProgress.setProperty("value", 0)
         self.xrdProgress.setObjectName("xrdProgress")
         self.textEdit = QtWidgets.QTextEdit(self.groupBox_2)
         self.textEdit.setGeometry(QtCore.QRect(240, 170, 191, 51))
+        self.textEdit.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.textEdit.setObjectName("textEdit")
         self.xrdCombined = QtWidgets.QLineEdit(self.groupBox_2)
         self.xrdCombined.setGeometry(QtCore.QRect(60, 170, 113, 22))
+        self.xrdCombined.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.xrdCombined.setObjectName("xrdCombined")
         self.label_9 = QtWidgets.QLabel(self.groupBox_2)
         self.label_9.setGeometry(QtCore.QRect(60, 200, 181, 16))
@@ -138,6 +151,7 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.groupBox_3.setFont(font)
+        self.groupBox_3.setStyleSheet("background-color: rgb(154, 154, 154);")
         self.groupBox_3.setObjectName("groupBox_3")
         self.fcStart = QtWidgets.QPushButton(self.groupBox_3)
         self.fcStart.setGeometry(QtCore.QRect(440, 180, 93, 28))
@@ -148,6 +162,7 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.xrdFileText_2 = QtWidgets.QLineEdit(self.groupBox_3)
         self.xrdFileText_2.setGeometry(QtCore.QRect(30, 90, 521, 22))
+        self.xrdFileText_2.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.xrdFileText_2.setObjectName("xrdFileText_2")
         self.fcBrowse = QtWidgets.QPushButton(self.groupBox_3)
         self.fcBrowse.setGeometry(QtCore.QRect(440, 140, 93, 28))
@@ -168,12 +183,14 @@ class Ui_MainWindow(object):
         self.symmCellCheck.setObjectName("symmCellCheck")
         self.fcArea = QtWidgets.QLineEdit(self.groupBox_3)
         self.fcArea.setGeometry(QtCore.QRect(100, 190, 91, 22))
+        self.fcArea.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.fcArea.setObjectName("fcArea")
         self.label_11 = QtWidgets.QLabel(self.groupBox_3)
         self.label_11.setGeometry(QtCore.QRect(40, 190, 55, 16))
         self.label_11.setObjectName("label_11")
         self.fcCombine = QtWidgets.QLineEdit(self.groupBox_3)
         self.fcCombine.setGeometry(QtCore.QRect(230, 160, 151, 22))
+        self.fcCombine.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.fcCombine.setObjectName("fcCombine")
         self.label_12 = QtWidgets.QLabel(self.groupBox_3)
         self.label_12.setGeometry(QtCore.QRect(230, 190, 161, 16))
@@ -185,6 +202,7 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.groupBox_4.setFont(font)
+        self.groupBox_4.setStyleSheet("background-color: rgb(154, 154, 154);")
         self.groupBox_4.setObjectName("groupBox_4")
         self.label_10 = QtWidgets.QLabel(self.groupBox_4)
         self.label_10.setGeometry(QtCore.QRect(30, 300, 461, 16))
@@ -195,6 +213,7 @@ class Ui_MainWindow(object):
         self.label_10.setObjectName("label_10")
         self.textBrowser = QtWidgets.QTextBrowser(self.groupBox_4)
         self.textBrowser.setGeometry(QtCore.QRect(20, 30, 411, 251))
+        self.textBrowser.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.textBrowser.setObjectName("textBrowser")
         self.groupBox_5 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QtCore.QRect(610, 10, 451, 401))
@@ -203,10 +222,12 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.groupBox_5.setFont(font)
+        self.groupBox_5.setStyleSheet("background-color: rgb(154, 154, 154);")
         self.groupBox_5.setObjectName("groupBox_5")
-        self.textBrowser_2 = QtWidgets.QTextBrowser(self.groupBox_5)
-        self.textBrowser_2.setGeometry(QtCore.QRect(20, 30, 411, 351))
-        self.textBrowser_2.setObjectName("textBrowser_2")
+        self.infoWindow = QtWidgets.QTextBrowser(self.groupBox_5)
+        self.infoWindow.setGeometry(QtCore.QRect(20, 30, 411, 351))
+        self.infoWindow.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.infoWindow.setObjectName("infoWindow")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1102, 26))
@@ -266,15 +287,10 @@ class Ui_MainWindow(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.textBrowser.setPlaceholderText(_translate("MainWindow", "There has been an error getting help and about. ERROR: 100"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Information"))
-        self.textBrowser_2.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        self.infoWindow.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt;\">Maryland Energy Innovation Institute</span></p>\n"
-"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; vertical-align:super;\"><br /></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"energy.umd.edu\"><span style=\" font-size:8pt; text-decoration: underline; color:#0000ff;\">MEII webpage</span></a></p>\n"
-"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;\"><br /></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"github.com/jobenland\"><span style=\" font-size:8pt; text-decoration: underline; color:#0000ff;\">Github</span></a></p>\n"
-"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;\"><br /></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"github.com/jobenland\"><span style=\" font-size:8pt; text-decoration: underline; color:#0000ff;\">Submit an Issue</span></a></p></body></html>"))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p></body></html>"))
+        self.infoWindow.setPlaceholderText(_translate("MainWindow", "There has been an error getting system information. ERROR: 100"))
 

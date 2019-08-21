@@ -34,10 +34,16 @@ class Ui(QtWidgets.QMainWindow):
     
     def __init__(self):
         super(Ui, self).__init__()
+        base = os.getcwd()
         uic.loadUi('gui.ui', self)
         path =''
         text = open('README.MD').read()
+        #infoIdle = open('Information/idle.html').read()
+        infoTD = open('Information/td.html').read()
+        infoXRD = open('Information/xrd.html').read()
+        infoFC = open('Information/fc.html').read()
         self.textBrowser.setPlainText(text)
+        self.infoWindow.setText(open('Information/idle.html').read())
         self.temp = tempConverter(path)
         
         printer = self.findChild(QtWidgets.QScrollArea,'outPutArea')
@@ -62,6 +68,8 @@ class Ui(QtWidgets.QMainWindow):
             symmCell = False
 
         if symmCell == True:
+            self.infoWindow.setText(open('Information/fc.html').read())
+            base = os.getcwd()
             symmcellFC = fcConvert(path)
             progressbarval += 20
             self.fcProgress.setValue(progressbarval)
@@ -78,8 +86,13 @@ class Ui(QtWidgets.QMainWindow):
             progressbarval += 20
             self.fcProgress.setValue(progressbarval)
             symmcellFC.createCSV(path)
+            os.chdir(base)
+            self.infoWindow.setText(open('Information/idle.html').read())
+
 
         if symmCell == False:
+            self.infoWindow.setText(open('Information/fc.html').read())
+            base = os.getcwd()
             fullcellFC = fcConvert(path)
             progressbarval += 14.2857143
             self.fcProgress.setValue(progressbarval)
@@ -102,11 +115,14 @@ class Ui(QtWidgets.QMainWindow):
             progressbarval += 14.2857143
             self.fcProgress.setValue(progressbarval)
             fullcellFC.createCSV(path)
+            os.chdir(base)
+            self.infoWindow.setText(open('Information/idle.html').read())
 
 
 
     def xrdSt(self):
-
+        self.infoWindow.setText(open('Information/xrd.html').read())
+        base = os.getcwd()
         path = self.xrdFileText.text()
         csvname = self.xrdCombined.text()
         progressbarval=0
@@ -128,11 +144,15 @@ class Ui(QtWidgets.QMainWindow):
         progressbarval+=16.6666667
         self.xrdProgress.setValue(progressbarval)
         xrd.generateSheets(listOfCSV,csvname)
+        os.chdir(base)
+        self.infoWindow.setText(open('Information/idle.html').read())
 
 
 
     def printButtonPressed(self):
-        self.consoleTextBrowser.setPlainText('Button Pressed')
+        self.infoWindow.setText(open('Information/td.html').read())
+        base = os.getcwd()
+        #self.consoleTextBrowser.setPlainText('Button Pressed')
         # This is executed when the button is pressed
         path = self.tdFileText.text()
         areaString = self.tDArea.text()
@@ -167,6 +187,9 @@ class Ui(QtWidgets.QMainWindow):
         progressbarval += 12.5
         self.progressBar.setValue(progressbarval)
         td.generateSheets(newZDir,csvname)
+        os.chdir(base)
+        self.infoWindow.setText(open('Information/idle.html').read())
+
     
     def getMdatFoldertd(self):
         pathToWallpaperDir = os.path.normpath(

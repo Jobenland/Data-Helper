@@ -37,6 +37,11 @@ QScrollArea {
     border-radius: 1px;
     margin-top: 0.5em;
 }
+
+QWidget {
+	
+	background-color: rgb(189, 189, 189);
+}
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -56,6 +61,9 @@ QScrollArea {
       <bold>true</bold>
       <underline>false</underline>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(154, 154, 154);</string>
     </property>
     <property name="title">
      <string>Temperature Dependence for Symmetrical cells</string>
@@ -103,6 +111,9 @@ QScrollArea {
        <width>531</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="placeholderText">
       <string>File Path Willl Update here. Click Browse to browse file system for folder</string>
@@ -164,6 +175,9 @@ QScrollArea {
        <height>22</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
      <property name="text">
       <string>0.155</string>
      </property>
@@ -189,6 +203,9 @@ QScrollArea {
        <width>131</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
       <string>Combined-CSV</string>
@@ -240,6 +257,9 @@ QScrollArea {
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(154, 154, 154);</string>
+    </property>
     <property name="title">
      <string>XRD Converter</string>
     </property>
@@ -280,6 +300,9 @@ QScrollArea {
        <width>531</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="placeholderText">
       <string>File Path Willl Update here. Click Browse to browse file system for folder</string>
@@ -325,7 +348,7 @@ QScrollArea {
        <x>190</x>
        <y>50</y>
        <width>371</width>
-       <height>20</height>
+       <height>16</height>
       </rect>
      </property>
      <property name="value">
@@ -340,6 +363,9 @@ QScrollArea {
        <width>191</width>
        <height>51</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="html">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -357,6 +383,9 @@ p, li { white-space: pre-wrap; }
        <width>113</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
       <string>Combined-CSV</string>
@@ -391,6 +420,9 @@ p, li { white-space: pre-wrap; }
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(154, 154, 154);</string>
     </property>
     <property name="title">
      <string>Full Cell Data Extractor</string>
@@ -432,6 +464,9 @@ p, li { white-space: pre-wrap; }
        <width>521</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="placeholderText">
       <string>File Path Willl Update here. Click Browse to browse file system for folder</string>
@@ -506,6 +541,9 @@ p, li { white-space: pre-wrap; }
        <height>22</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
      <property name="text">
       <string>0.155</string>
      </property>
@@ -531,6 +569,9 @@ p, li { white-space: pre-wrap; }
        <width>151</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
       <string>Combined-CSV</string>
@@ -566,6 +607,9 @@ p, li { white-space: pre-wrap; }
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(154, 154, 154);</string>
+    </property>
     <property name="title">
      <string>Readme.md and help</string>
     </property>
@@ -597,6 +641,9 @@ p, li { white-space: pre-wrap; }
        <height>251</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
      <property name="html">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -625,10 +672,13 @@ p, li { white-space: pre-wrap; }
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(154, 154, 154);</string>
+    </property>
     <property name="title">
      <string>Information</string>
     </property>
-    <widget class="QTextBrowser" name="textBrowser_2">
+    <widget class="QTextBrowser" name="infoWindow">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -637,18 +687,18 @@ p, li { white-space: pre-wrap; }
        <height>351</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
      <property name="html">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Maryland Energy Innovation Institute&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; vertical-align:super;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;energy.umd.edu&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;MEII webpage&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;github.com/jobenland&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Github&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;github.com/jobenland&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Submit an Issue&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="placeholderText">
+      <string>There has been an error getting system information. ERROR: 100</string>
      </property>
     </widget>
    </widget>
