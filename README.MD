@@ -54,6 +54,7 @@ The best way to deploy this software for use in lab is to run locally either thr
 
 ## Built With
 
+
 * [Pandas](https://pandas.pydata.org/) - Used to edit and read CSV's
 * [PyQt5qt](https://www.qt.io/developers/) - Used to create a GUI more efficiently
 * [NP](http://cs231n.github.io/python-numpy-tutorial/) - Help with scientific calculations
@@ -70,6 +71,8 @@ No versioning control has been set up yet but I am working on having this work i
 
 * **Jonathan Obenland** - *Initial work* - [Jonathan Obenland](https://github.com/jobenland)
 
+## Credit
+* **flat Icon** - *Data mining Icon* - [flaticon](https://www.flaticon.com/authors/flat-icons)
 ## License
 
 This project is licensed under the GPL License

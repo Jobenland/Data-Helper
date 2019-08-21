@@ -12,6 +12,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1102, 806)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("Assets/data-mining.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet("\n"
 "QGroupBox {\n"
 "    border: 1px solid red;\n"
@@ -218,7 +221,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Data Helper  -- Version 1.0.0"))
         self.groupBox.setTitle(_translate("MainWindow", "Temperature Dependence for Symmetrical cells"))
         self.tdStart.setText(_translate("MainWindow", "Start"))
         self.label_2.setText(_translate("MainWindow", "Enter Folder of MDATS"))
@@ -275,4 +278,3 @@ class Ui_MainWindow(object):
 "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;\"><br /></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"github.com/jobenland\"><span style=\" font-size:8pt; text-decoration: underline; color:#0000ff;\">Submit an Issue</span></a></p></body></html>"))
 
-import Image_rc
