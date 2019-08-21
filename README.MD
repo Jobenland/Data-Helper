@@ -72,7 +72,7 @@ No versioning control has been set up yet but I am working on having this work i
 * **Jonathan Obenland** - *Initial work* - [Jonathan Obenland](https://github.com/jobenland)
 
 ## Credit
-* **flat Icon** - *Data mining Icon* - [flaticon](https://www.flaticon.com/authors/flat-icons)
+* **Flat Icon** - *Data mining Icon* - [FlatIcon](https://www.flaticon.com/authors/flat-icons)
 ## License
 
 This project is licensed under the GPL License
