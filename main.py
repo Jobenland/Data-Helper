@@ -47,7 +47,63 @@ class Ui(QtWidgets.QMainWindow):
         
         self.tdStart.clicked.connect(self.printButtonPressed) # Remember to pass the definition/method, not the return value!
         self.xrdStart.clicked.connect(self.xrdSt)
+        self.fcStart.clicked.connect(self.fcSt)
         self.show()
+
+    def fcSt(self):
+        path = self.xrdFileText_2.text()
+        csvname = self.fcCombine.text()
+        progressbarval = 0
+        area = float(self.fcArea.text())
+
+        if self.symmCellCheck.isChecked():
+            symmCell = True
+        else:
+            symmCell = False
+
+        if symmCell == True:
+            symmcellFC = fcConvert(path)
+            progressbarval += 20
+            self.fcProgress.setValue(progressbarval)
+            symmcellFC.convertMdatToZip(path)
+            progressbarval += 20
+            self.fcProgress.setValue(progressbarval)
+            symmcellFC.unzipFiles(path)
+            progressbarval += 20
+            self.fcProgress.setValue(progressbarval)
+            gdL,gsL,iL = symmcellFC.getExperimentName(path)
+            progressbarval += 20
+            self.fcProgress.setValue(progressbarval)
+            symmcellFC.impedanceFileReader(iL, path,area)
+            progressbarval += 20
+            self.fcProgress.setValue(progressbarval)
+            symmcellFC.createCSV(path)
+
+        if symmCell == False:
+            fullcellFC = fcConvert(path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.convertMdatToZip(path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.unzipFiles(path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            gdL,gsL,iL = fullcellFC.getExperimentName(path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.galvanodynamicFileReader(gdL, path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.galvanostaticFileReader(gsL, path)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.impedanceFileReader(iL, path, area)
+            progressbarval += 14.2857143
+            self.fcProgress.setValue(progressbarval)
+            fullcellFC.createCSV(path)
+
+
 
     def xrdSt(self):
 
@@ -130,6 +186,362 @@ class Ui(QtWidgets.QMainWindow):
         #TODO fix object name
         fileview = self.findChild(QtWidgets.QLineEdit, 'xrdFileText_2')  
         fileview.setText(pathToWallpaperDir)
+
+class fcConvert():
+    def __init__(self, path):
+        self.filename = path
+        self.arrayOfImpFiles = []
+        self.impedanceElectrodeASRList = []
+        self.impedanceTotalASRList = []
+        self.impedanceOhmicList = []
+        self.impedanceTimeInSecounds = []
+        self.impedanceTimeInHours = []
+        self.listOfCSV = []
+        self.listOfComb = []
+        self.olist = []
+        self.nolist = []
+        self.tasr = []
+        self.acohmic = []
+        self.acnonohmic = []
+        self.actasr = []
+        self.filename =[]
+        self.otherthinglist = []
+    #converts all mdats to a given zip
+    def convertMdatToZip(self,files):
+        pattern = '*.mdat'
+        for (root,dirs,files) in os.walk(files):
+            for filename in fnmatch.filter(files,pattern):
+                infilename = os.path.join(root,filename)
+                oldbase = os.path.splitext(filename)
+                newname = infilename.replace('.mdat', '.zip')
+                output = os.rename(infilename, newname)
+    
+    #unzips all files and puts them in respective folders
+    def unzipFiles(self,files):
+        pattern = '*.zip'
+        for root, dirs, files in os.walk(files):
+            for filename in fnmatch.filter(files, pattern):
+                print(os.path.join(root,filename))
+                zipfile.ZipFile(os.path.join(root,filename)).extractall(os.path.join(root, os.path.splitext(filename)[0]))
+
+    #lists files in a given directory          
+    def listFiles(self,files):
+        try:
+            print("listing files ...")
+            os.chdir(files)
+            it = sorted(glob.glob('*.*'))
+            return(it)
+        except OSError:
+            print("The OS could not detect that file path")
+
+    #gets the experiment names and adds them to a list
+    def getExperimentName(self,files):
+        galvanodynamicList = []
+        galvanostaticList = []
+        impedanceList = []
+        os.chdir(files)
+        allFolders = [d for d in os.listdir('.') if os.path.isdir(d)]
+        for folder in allFolders:
+            folderInUnzip = os.path.join(files, folder)
+            os.chdir(folderInUnzip)
+            runFolders = [d for d in os.listdir('.') if os.path.isdir(d)]
+            for runFolder in runFolders:
+                filesInRun = os.path.join(folderInUnzip,runFolder)
+                os.chdir(filesInRun)
+                fileList = self.listFiles(filesInRun)
+            for file in fileList:
+                with open(file, 'r', encoding = 'ISO-8859-1') as f:       
+                    for row in f:
+                        if 'Exp Name:' in row:
+                            strippedExperimentName = row.strip('Exp Name: \n')
+                            if strippedExperimentName == 'Galvanodynamic':
+                                galvanodynamicList.append(file)
+                                print("found galvanodynamic file: ",file)
+                                #return strippedExperimentName,file
+                            elif strippedExperimentName == 'Galvanostatic':
+                                galvanostaticList.append(file)
+                                print("found galvanostatic file: ", file)
+                                #return strippedExperimentName,file
+                            elif strippedExperimentName == 'Impedanc':
+                                for row in f:
+                                    if 'End Information' in row:
+                                        strippedImpedanceType = row.strip('End Information: \n')
+                                        if strippedImpedanceType == 'DC File Columns':
+                                            print(file, ' is DC and will be ignored')
+                                        if strippedImpedanceType == 'AC File Columns':
+                                            impedanceList.append(file) 
+                                            print("found AC impedance file: ",file)
+        print("all files have been analyzed. Reading data...")
+        return galvanodynamicList,galvanostaticList,impedanceList
+
+    #takes all galvanodynamic files and gets the data from them
+    def galvanodynamicFileReader(self,gdL,files):
+        os.chdir(files)
+        path = files
+        dfTS,dfTH,dfPPD,dfABS =([] for i in range(4))
+        peakPowerDensityList,correctedTimeList=([] for i in range(2))
+        for gdFile in gdL:
+            print("next file to handle is ",gdFile)
+            os.chdir(path)
+            print("looking for " , gdFile)
+            for root, dirs, files in os.walk(path):
+                if gdFile in files:
+                    print("System found ", gdFile)
+                    newFilePath = os.path.join(root,gdFile)
+                    os.chdir(root)
+                    stringTime,stringCurrent,stringVoltage,dateTimeList=([] for i in range(4))
+                    with open (gdFile, 'r', encoding = 'ISO-8859-1') as f:
+                        for row in f:
+                            if 'End Header:' in row:
+                                strippedEndHeaderData = row.strip('End Header: \n')
+                                for x in f:
+                                    stringTime.append(x.split('\t')[0])
+                                    stringCurrent.append(x.split('\t')[2])
+                                    stringVoltage.append(x.split('\t')[1])
+                        if stringTime != []:
+                            intTime = [float(i) for i in stringTime]
+                            intCurrent = [float(i) for i in stringCurrent]
+                            intVoltage = [float(i) for i in stringVoltage]
+                            intPower = [intCurrent[i]*intVoltage[i] for i in range(len(intCurrent))]
+                            peakPowerDensityList=max(intPower)
+                        elif stringTime ==[]:
+                            print("empty sequence")
+                    if stringTime != []:
+                        #variable setting and appending to global arrays
+                        print("data stored for ",gdFile," parsing data to usable information")
+                        timeD = self.getTime(gdFile)
+                        dateD = self.getDate(gdFile)
+                        dateTimeString = dateD + ' ' + timeD
+                        dateTimeFormat = datetime.datetime.strptime(dateTimeString, '%m/%d/%Y %I:%M:%S %p')
+                        dateTimeList.append(dateTimeFormat)
+                        correctedTime = time.mktime(dateTimeFormat.timetuple())
+                        correctedTimeList.append(correctedTime)
+                        timeMin = min(correctedTimeList)
+            timeInSecounds = ([correctedTimeList[i]-correctedTimeList[0] for i in range(len(correctedTimeList))])
+            dfTS.append(timeInSecounds)
+            timeInHours = ([((correctedTimeList[i]-timeMin)/3600) for i in range(len(correctedTimeList))])
+            dfTH.append(timeInHours)
+            dfPPD.append(peakPowerDensityList)
+            dfABS.append(correctedTimeList)            
+        os.chdir(path)
+        print("Creating the CSV...")
+        fileN = 'GalvanoDynamic.csv'
+        dataf = {'Time': timeInSecounds, 'Time-Hours': timeInHours,'Peak Power Density':dfPPD, 'ABS-Time':correctedTimeList}
+        df = pd.DataFrame(data=dataf)
+        df.to_csv(fileN, index = False)
+
+    #gets the galvanostatic files and gets the data
+    def galvanostaticFileReader(self,gsL, files):
+        print("reading galvanostatic files...")
+        os.chdir(files)
+        path = files
+        intTime,intvolt,timeInHours,dateTimeList,floatTime,timeInSecounds,intRelativeTime = ([] for i in range(7))
+        for gsFile in gsL:
+            print("next file to handle is ",gsFile)
+            os.chdir(path)
+            print("looking for " , gsFile)
+            for root, dirs, files in os.walk(path):
+                if gsFile in files:
+                    os.chdir(root)
+                    stringTime,stringVoltage = ([] for i in range(2))
+                    minExpTime = -1
+                    with open(gsFile,'r', encoding = 'ISO-8859-1') as f:
+                        lingen = itls.islice(f,0,None,60) 
+                        for row in f:
+                            if 'End Header:' in row:   
+                                    for x in lingen:
+                                        stringTime.append(x.split('\t')[0])
+                                        stringVoltage.append(x.split('\t')[1])
+                        if stringTime != []:
+                            for i in stringTime:
+                                intTime.append(float(i))
+                            for i in stringVoltage:
+                                intvolt.append(float(i))
+                    if stringTime !=[]:
+                        print("data stored for ",gsFile," parsing data to usable information")
+                        timeD = self.getTime(gsFile)
+                        dateD = self.getDate(gsFile)
+                        dateTimeString = dateD + ' ' + timeD
+                        dateTimeFormat = datetime.datetime.strptime(dateTimeString, '%m/%d/%Y %I:%M:%S %p')
+
+                        dateTimeList.append(dateTimeFormat)
+                        timeInSecounds.append(float(time.mktime(dateTimeFormat.timetuple())))
+        for i in range(len(intTime)):
+            intRelativeTime.append(intTime[i] - intTime[0])
+        mintime = min(intRelativeTime)    
+        for i in intRelativeTime:
+            timeInHours.append((i-mintime) / 3600)
+        os.chdir(path)
+        print("Creating the CSV...")
+        fileN = 'GalvanoStatic.csv'
+        dataf = {'Time-Hours': timeInHours, 'Voltage':intvolt}
+        df = pd.DataFrame(data=dataf)
+        df.to_csv(fileN,index = False)
+
+    #gets the impedance files and gets the data from them
+    def impedanceFileReader(self,iL, files,intArea):
+        os.chdir(files)
+        path = files 
+        electrodeASRList,totalASRList, ohmicList, dateTimeList, floatTime, timeInSecounds, timeInHour,tsarAC,electronAC = ([] for i in range(9))
+        i=0
+        for iFile in iL:
+            
+            i+=1
+            print("next file to handle is ",iFile)
+            os.chdir(path)
+            print("looking for " , iFile)
+            for root, dirs, files in os.walk(path):
+                if iFile in files:
+                    os.chdir(root)
+                    stringZPrime,stringZDoublePrime = ([] for i in range(2))
+                    with open(iFile,'r', encoding = 'ISO-8859-1') as f:
+                        for row in f:
+                            if 'End Header:' in row:
+                                for x in f:
+                                    stringZPrime.append(x.split('\t')[4])
+                                    #intZPrime.append(float(x.split('\t)[4]))
+                                    stringZDoublePrime.append(x.split('\t')[5])
+                                if stringZPrime !=[]:
+                                    intZPrime = [float(i) for i in stringZPrime]
+                                    intzDoublePrime = [float(i) for i in stringZDoublePrime]
+                                    startRange, endRange = self.getRange(intzDoublePrime)
+                                    if endRange == -1:
+                                        zDoublePrimeShort = max(intzDoublePrime)
+                                        zDoublePrimeABS = zDoublePrimeShort
+                                        ohmicZDoublePrime = zDoublePrimeShort
+                                    if endRange > 0:
+                                        intStart = int(startRange)
+                                        intEnd = int(endRange)
+                                        zDoublePrimeShort = intzDoublePrime[intStart:intEnd]
+
+                                    #zDoublePrimeShort = intzDoublePrime[5:25]
+                                        zDoublePrimeABS = [abs(i) for i in zDoublePrimeShort]
+                                        ohmicZDoublePrime = min(zDoublePrimeABS)
+                                elif stringZPrime == []:
+                                    print("empty sequence")
+                        if stringZPrime != []:
+                            print("data stored for ",iFile,". parsing data to usable information")
+                            ohmicZDoublePrime = min(zDoublePrimeABS)
+                            if ohmicZDoublePrime in intzDoublePrime:
+                                ohmicZPrimeIndex = intzDoublePrime.index(ohmicZDoublePrime)
+                            else:
+                                ohmicZPrimeIndex = intzDoublePrime.index(-ohmicZDoublePrime)
+                            #ammending things and setting things   
+                            ohmicMin = intZPrime[ohmicZPrimeIndex]
+                            totalASR = max(intZPrime[ohmicZPrimeIndex:])
+                            electrodeASR = totalASR-ohmicMin                        
+                            electrodeASRList.append(electrodeASR)                       
+                            totalASRList.append(totalASR)                    
+                            ohmicList.append(ohmicMin)
+                            #timeT = getTime(iFile)
+                            #dateD = getDate(iFile)
+
+                            #________NICKS DATATIME_______#
+                            #dataTimeTuple = getMetaData(iFile)
+                            #dataTine = datetine.datetime.strptime("{} {}".format(dateTimeTuple[0], dateTimeTuple[1], '%m/%d/%Y %I:%M:%S %p'))
+                            #timeInSecounds.append(float(time.mktime(dateTime.timetuple())))
+                            #minTime = min(timeInSecounds)
+                            #________NICKS DATATIME_______#
+                            t_d_array = self.getMetaData(iFile)
+                            timeT = t_d_array[1]
+                            dateD = t_d_array[0]
+                            dateTimeString = dateD + ' ' + timeT
+                            dateTimeFormat = datetime.datetime.strptime(dateTimeString, '%m/%d/%Y %I:%M:%S %p')
+                            dateTimeList.append(dateTimeFormat)
+                            correctedTime = time.mktime(dateTimeFormat.timetuple())
+                            floatTime.append(float(correctedTime))                    
+                            timeInSecounds.append(correctedTime)
+                            minTime = min(timeInSecounds)         
+                            impedanceTimeInHours = [((timeInSecounds[i]-minTime)/3600) for i in range(len(timeInSecounds))]
+                            tsarAC.append(float(intArea*totalASR))
+                            electronAC.append(float(intArea*electrodeASR))
+        os.chdir(path)
+        print("creating the CSV...")
+        fileN = "Impedance.csv"
+        dataf = { 'time' :timeInSecounds, "time(hours)":impedanceTimeInHours, 'Electrode' : electrodeASRList , 'Ohmic':ohmicList ,'tasr': totalASRList, 'tsarAC' : tsarAC, 'ElectrodeAC' : electronAC}
+        df = pd.DataFrame(data=dataf)
+        df.to_csv(fileN,index = False)
+
+    def getRange(self,intZDoublePrime):
+        PG=[]
+        NG=[]
+        t=0
+        for i in range(len(intZDoublePrime)):
+            if intZDoublePrime[i] > 0:
+                t+1
+            elif intZDoublePrime[i] < 0:
+                if intZDoublePrime[i-1] >0:
+                    indexx = i-1
+                    break
+        for i in range(len(intZDoublePrime)):
+            if intZDoublePrime[i] < 0:
+                PG.append(i)
+            elif intZDoublePrime[i] > 0:
+                NG.append(i)
+            elif intZDoublePrime[i] == 0:
+                OH = intZDoublePrime[i]
+                break
+        if NG == [] and PG != []:
+            startRange = min(intZDoublePrime)
+            endRange = -1
+        if NG != [] and PG != []:
+            j = (len(NG))
+            startRange = indexx
+            endRange = startRange + 1
+        return(startRange,endRange)
+
+    #gets the date in the file
+    def getDate(self,file):
+        with open(file,'r',encoding = "ISO-8859-1") as f:
+            for row in f:
+                if 'Date:' in row:
+                    strippedDate= row.strip('Date: \n')
+                    return strippedDate
+
+    #gets the time in the file
+    def getTime(self,file):
+        with open(file,'r',encoding = "ISO-8859-1") as f:
+                for row in f:
+                    if 'Time:' in row:
+                        strippedTime= row.strip('Time: \n')
+                        return strippedTime
+    def convertDate(self,europeanDate):
+        splitDate = europeanDate.split("/")
+        return splitDate[1] + "/" + splitDate[0] + "/" + splitDate[2]
+
+    def getMetaData(self,filename):
+        multistatVersionFound = False
+        convertDateB = False
+        LOOKUP_DATE = "Date:"
+        LOOKUP_TIME = "Time:"
+        stringDate = ''
+        stringTime = ''
+        stf = False
+        sdf = False
+        with open(filename, 'r') as file:
+            for line in file:
+                if '1.7a-mem1' in line:
+                    multistatVersionFound = True
+                    convertDateB = True
+                if '1.7f' in line or '1.6c' in line:
+                    multistatVersionFound = True
+                    convertDateB = False
+                if multistatVersionFound and LOOKUP_DATE in line:
+                    stringDate = line.split()[1]
+                    if convertDateB:
+                        stringDate = self.convertDate(stringDate)
+                    sdf = True
+                elif multistatVersionFound and LOOKUP_TIME in line and 'Start' not in line and 'Delta' not in line and 'Offset' not in line and 'Total' not in line and 'Step' not in line:
+                    stringTime = line.split()
+                    stf = True
+                if sdf and stf:
+                    break
+        return [stringDate, stringTime[1] + ' ' + stringTime[2]]
+
+    def createCSV(self,files):
+        #TODO
+        print("All CSV's Have been created click ok to close the window.")
+        print("Maryland Energy Innovation Institute -> written by Jonathan Obenland ")
 
 class tempConverter():
     def __init__(self,path):
