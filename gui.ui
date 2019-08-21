@@ -626,7 +626,7 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="title">
-     <string>Information and Assistance</string>
+     <string>Information</string>
     </property>
     <widget class="QTextBrowser" name="textBrowser_2">
      <property name="geometry">
