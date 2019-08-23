@@ -26,6 +26,15 @@ import zipfile
 import shutil
 import math
 import re
+from scipy.optimize import fsolve, minimize
+from scipy.integrate import quad
+from scipy.linalg import toeplitz
+from scipy import sparse
+from np import conj
+from np import transpose
+from oct2py import octave
+import osqp
+import matplotlib.pyplot as plot
 
 
 
@@ -50,12 +59,40 @@ class Ui(QtWidgets.QMainWindow):
         self.tdBrowse.clicked.connect(self.getMdatFoldertd)
         self.xrdBrowse.clicked.connect(self.getMdatFolderxrd)
         self.fcBrowse.clicked.connect(self.getMdatFolderfc)
-        
+        self.drtBrowse.clicked.connect(self.getMdatFolderdrt)
+
         self.tdStart.clicked.connect(self.printButtonPressed) # Remember to pass the definition/method, not the return value!
         self.xrdStart.clicked.connect(self.xrdSt)
         self.fcStart.clicked.connect(self.fcSt)
+        self.drtStart.clicked.connect(self.DRT)
+        
         self.show()
+    def DRT(self):
+        #base=os.getcwd()
+        #self.infoWindow.setText(open('Information/drt.html').read())
+        input_directory = self.drtFilePath.text()
+        regularization = self.drtRegularization.text()
 
+        output_directory = input_directory + '/out'
+        if not os.path.exists(input_directory):
+            os.mkdir(input_directory)
+        if not os.path.exists(output_directory):
+            os.mkdir(output_directory)
+
+        os.chdir(input_directory)
+        file_list = os.listdir(input_directory)
+        progressbarval=0
+        step = 100 / len(os.listdir(input_directory))
+        tstep = step
+        
+        for file in file_list:
+            tstep += step
+            self.drtProgress.setValue(tstep)
+            if os.path.isfile(file):
+                f = File_In(input_directory +'/'+ file, output_directory, regularization=regularization)
+        print("DRT FINISHED")
+        os.chdir(base)
+        #self.infoWindow.setText(open('Information/idle.html').read())
     def fcSt(self):
         path = self.xrdFileText_2.text()
         csvname = self.fcCombine.text()
@@ -209,6 +246,81 @@ class Ui(QtWidgets.QMainWindow):
         #TODO fix object name
         fileview = self.findChild(QtWidgets.QLineEdit, 'xrdFileText_2')  
         fileview.setText(pathToWallpaperDir)
+
+    def getMdatFolderdrt(self):
+        pathToWallpaperDir = os.path.normpath(QFileDialog.getExistingDirectory(self))
+        #TODO change object name once fixed
+        fileview = self.findChild(QtWidgets.QLineEdit, 'drtFilePath')
+        fileview.setText(pathToWallpaperDir)
+class File_Handler:
+    def __init__(self):
+        print('initialized')   
+class File_In(File_Handler):
+    def __init__(self, file_in, dir_out, is_sym=False, regularization=1e-4):
+        
+        m = osqp.OSQP()
+
+        try:
+            H, f, freq_out, freq, epsilon = octave.main(file_in, regularization, nout=5)
+            print("Non-convert to float")
+        except:
+            H, f, freq_out, freq, epsilon = octave.main(file_in, float(regularization), nout=5)
+            print("convert to float")
+        #col_g, col_t = octave.main(file_in, nout=2)
+        
+        self.lb_re = np.zeros((freq.size + 2, 1))
+        self.ub_re = np.Inf*np.ones((freq.size + 2, 1))
+        #
+#
+        sH = sparse.csc_matrix(H)
+#
+        f_c = conj(transpose(f))
+#
+        m.setup(P=sH, q=f_c, max_iter=10000,  eps_abs=1e-10,  eps_rel=1e-10)
+               
+#
+        results = m.solve()
+        x= results.x
+        for i in range(x.size):
+            if x[i] < 0:
+                x[i] =0
+        
+#
+        #
+        #
+        file_out = file_in.split('/')
+        file_out = file_out[len(file_out) -1].strip('.csv')
+        gamma_tau, tau = octave.main2(x, freq_out, freq, epsilon, dir_out, file_out, nout=2)
+
+        plot.semilogx(tau, gamma_tau)
+        plot.ylim([0, max(gamma_tau[self.find_nearest(tau, 1e-4):gamma_tau.size - 1])])
+        plot.xlim([1e-4, max(tau)])
+        plot.savefig(dir_out + '/' + file_out + '.png')
+        plot.clf()
+        
+
+        ##.a_re, self.a_im, self.ZPrime, self.Z2Prime, self.m_re, self.m_im, mhelp.lambd)
+        ##h, c = octave.quad_format_combined(self.a_
+        #sol = solvers.qp(H,f, solver='MOSEK')
+ 
+
+        
+        
+        
+        #df = pd.DataFrame({'L': col_g_1, 'R': col_t_1, 'gamma(tau)', })
+
+
+        #self.xridge = octave.doprog(h, c, self.lb_re, self.ub_re, self.x_re_0, options)
+        
+        #self.x_ridge = octave.quadprog(self.arr_h_f_comb[0], self.arr_h_f_comb[1], [], [], [], [], self.lb_re, self.ub_re, self.x_re_0, options)
+        #self.x_ridge, obj, flag, output, l = octave.qp(self.x_re_0, self.arr_h_f_comb[0], self.arr_h_f_comb[1], [], [], self.lb_re, self.ub_re, options)
+    
+        #self.df = pd.DataFrame({'L': self.arr_h_f_comb[0][0],'h_1': self.arr_h_f_comb[0][1], 'f_0': self.arr_h_f_comb[1][0],'f_1': self.arr_h_f_comb[1][1]})
+        #self.df.to_csv('/home/nick/Projects/DRTConverter/out.csv')
+    def find_nearest(self, array, value):
+        array = np.asarray(array)
+        idx = (np.abs(array - value)).argmin()
+        return idx
 
 class fcConvert():
     def __init__(self, path):
