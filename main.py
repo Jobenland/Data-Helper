@@ -217,6 +217,8 @@ class Ui(QtWidgets.QMainWindow):
         newZDir = td.extractedFolder(path)
         progressbarval += 12.5
         self.progressBar.setValue(progressbarval)
+        os.chdir(newZDir)
+        os.mkdir("DRT-Preprocessing")
         td.fileReader(newZDir,decades,area)
         progressbarval += 12.5
         self.progressBar.setValue(progressbarval)
@@ -818,7 +820,6 @@ class tempConverter():
         listF = os.listdir(impFiles)
         i=0
         for file in listF:
-            
             i+=1
             stringFreq = []
             stringTS = []
@@ -828,86 +829,94 @@ class tempConverter():
             decFreq=[]
             decZP = []
             decZDP = []
-            with open (file, 'r', encoding = 'ISO-8859-1') as f:
-                for row in f:
-                    if 'End Header:' in row:
-                        for x in f:
-                            stringFreq.append(x.split('\t')[0])
-                            stringTS.append(x.split('\t')[3])
-                            stringZPrime.append(x.split('\t')[4])
-                            stringZDoublePrime.append(x.split('\t')[5])
-                        intFreq = [float(i) for i in stringFreq]
-                        intTS = [float(i) for i in stringTS]
-                        intZPrime = [float(i) for i in stringZPrime]
-                        intZDoublePrime = [float(i) for i in stringZDoublePrime]
-                        startRange,endRange = self.getRange(intZDoublePrime)
-                        
-                        if endRange == -1:
-                            zDoublePrimeShort = max(intZDoublePrime)
-                            zDoublePrimeABS = zDoublePrimeShort
-                            ohmicZDoublePrime = zDoublePrimeShort
-                        elif endRange > 0:
-                            intStart = int(startRange)
-                            intEnd = int(endRange)
-                            zDoublePrimeShort = intZDoublePrime[intStart:intEnd]
-                            zDoublePrimeABS= [abs(i) for i in zDoublePrimeShort]
-                            ohmicZDoublePrime = min(zDoublePrimeABS)
-                intArea = (float(area))
-                if ohmicZDoublePrime in intZDoublePrime:
-                    ohmicZPrimeIndex = intZDoublePrime.index(ohmicZDoublePrime)
-                    ohmicZPrime = intZPrime[ohmicZPrimeIndex]
-                else:
-                    ohmicZPrimeIndex = intZDoublePrime.index(-ohmicZDoublePrime)
-                    ohmicZPrime = intZPrime[ohmicZPrimeIndex]
-                zPrimeOC = [((intZPrime[i])-(ohmicZPrime)) for i in range(len(intZPrime))]
-                zPrimeARC= [((zPrimeOC[i])*(intArea)) for i in range(len(intZPrime))]
-                zDoublePrimeARC = [((intZDoublePrime[i])*(intArea)) for i in range(len(intZDoublePrime))]
-                positiveZDoublePrime = [-x for x in zDoublePrimeARC]
-                if decades==True:
-                    for val in intFreq:
-                        dectest = math.log10(val)
-                        try:
-                            dosomething = dectest - math.floor(dectest)
-                            if dosomething > 0.0 :
-                                pass
-                            elif dosomething == 0.0:
-                                decFreq.append(val)
-                                #indexx = intFreq.index(val)
-                                decFreqIndex.append(intFreq.index(val))
-                        except:
-                            print("not a decade")
-                    for dec in decFreqIndex:
-                        decZP.append(zPrimeARC[dec])
-                        decZDP.append(zDoublePrimeARC[dec])
-                    nameoffile, file_extension = os.path.splitext(file)
-                    datadec = { 'Frequency' : decFreq, 'Z Prime' : decZP, 'Z Double Prime' : decZDP}
-                    dec = pd.DataFrame(data=datadec)
-                    fileName = nameoffile +'-Decades.csv'
-                    dec.to_csv(fileName,index = False)
-    
-    
-    
-            self.olist.append(ohmicZPrime)
-            self.nolist.append(intZPrime[-1]-ohmicZPrime)
-            self.tasr.append(intZPrime[-1])
-            self.acohmic.append(ohmicZPrime*intArea)
-            self.acnonohmic.append((intZPrime[-1]-ohmicZPrime)*intArea)
-            self.actasr.append(intZPrime[-1]*intArea)
-            self.filename.append(file)
-            nameoffile, file_extension = os.path.splitext(file)
-            comb = [(zPrimeARC[i],positiveZDoublePrime[i]) for i in range(len(zPrimeARC))]
-            dataf = { 'Frequency' :intFreq,'Time In Seconds' : intTS, 'Z Prime' : intZPrime, 'Z Double Prime' : intZDoublePrime, 'Z Prime Ohmic Corrected' : zPrimeOC,
-            'z Prime Area Corrected' : zPrimeARC, 'Z Double Prime Area Corrected' : zDoublePrimeARC, '+- Z Double Prime' : positiveZDoublePrime, 'DUAL COL' : comb} #column headings for the excel file
-            df = pd.DataFrame(data=dataf)
-            fileName = nameoffile +'.csv'
-            df.to_csv(fileName,index = False)
-            self.listOfCSV.append(fileName)
-            self.listOfComb.append(comb)
-            dataDRT = {'Frequency' : intFreq, 'Z Prime Ohmic Corrected' : zPrimeARC, 'Z Double Prime Area Corrected' : zDoublePrimeARC}
-            dt = pd.DataFrame(data=dataDRT)
-            fileName = nameoffile + 'DRT-Preproccessing.csv'
-            dt.to_csv(fileName,index=False,header=None)
-            print(file, " has been parsed. continuing to next file...")
+            skip = False
+            try:
+                with open (file, 'r', encoding = 'ISO-8859-1') as f:
+                    for row in f:
+                        if 'End Header:' in row:
+                            for x in f:
+                                stringFreq.append(x.split('\t')[0])
+                                stringTS.append(x.split('\t')[3])
+                                stringZPrime.append(x.split('\t')[4])
+                                stringZDoublePrime.append(x.split('\t')[5])
+                            intFreq = [float(i) for i in stringFreq]
+                            intTS = [float(i) for i in stringTS]
+                            intZPrime = [float(i) for i in stringZPrime]
+                            intZDoublePrime = [float(i) for i in stringZDoublePrime]
+                            startRange,endRange = self.getRange(intZDoublePrime)
+
+                            if endRange == -1:
+                                zDoublePrimeShort = max(intZDoublePrime)
+                                zDoublePrimeABS = zDoublePrimeShort
+                                ohmicZDoublePrime = zDoublePrimeShort
+                            elif endRange > 0:
+                                intStart = int(startRange)
+                                intEnd = int(endRange)
+                                zDoublePrimeShort = intZDoublePrime[intStart:intEnd]
+                                zDoublePrimeABS= [abs(i) for i in zDoublePrimeShort]
+                                ohmicZDoublePrime = min(zDoublePrimeABS)
+                    intArea = (float(area))
+                    if ohmicZDoublePrime in intZDoublePrime:
+                        ohmicZPrimeIndex = intZDoublePrime.index(ohmicZDoublePrime)
+                        ohmicZPrime = intZPrime[ohmicZPrimeIndex]
+                    else:
+                        ohmicZPrimeIndex = intZDoublePrime.index(-ohmicZDoublePrime)
+                        ohmicZPrime = intZPrime[ohmicZPrimeIndex]
+                    zPrimeOC = [((intZPrime[i])-(ohmicZPrime)) for i in range(len(intZPrime))]
+                    zPrimeARC= [((zPrimeOC[i])*(intArea)) for i in range(len(intZPrime))]
+                    zDoublePrimeARC = [((intZDoublePrime[i])*(intArea)) for i in range(len(intZDoublePrime))]
+                    positiveZDoublePrime = [-x for x in zDoublePrimeARC]
+                    if decades==True:
+                        for val in intFreq:
+                            dectest = math.log10(val)
+                            try:
+                                dosomething = dectest - math.floor(dectest)
+                                if dosomething > 0.0 :
+                                    pass
+                                elif dosomething == 0.0:
+                                    decFreq.append(val)
+                                    #indexx = intFreq.index(val)
+                                    decFreqIndex.append(intFreq.index(val))
+                            except:
+                                print("not a decade")
+                        for dec in decFreqIndex:
+                            decZP.append(zPrimeARC[dec])
+                            decZDP.append(zDoublePrimeARC[dec])
+                        nameoffile, file_extension = os.path.splitext(file)
+                        datadec = { 'Frequency' : decFreq, 'Z Prime' : decZP, 'Z Double Prime' : decZDP}
+                        dec = pd.DataFrame(data=datadec)
+                        fileName = nameoffile +'-Decades.csv'
+                        dec.to_csv(fileName,index = False)
+            except PermissionError:
+                print("this was a folder")
+                skip = True
+
+            if skip == False:
+                self.olist.append(ohmicZPrime)
+                self.nolist.append(intZPrime[-1]-ohmicZPrime)
+                self.tasr.append(intZPrime[-1])
+                self.acohmic.append(ohmicZPrime*intArea)
+                self.acnonohmic.append((intZPrime[-1]-ohmicZPrime)*intArea)
+                self.actasr.append(intZPrime[-1]*intArea)
+                self.filename.append(file)
+                nameoffile, file_extension = os.path.splitext(file)
+                comb = [(zPrimeARC[i],positiveZDoublePrime[i]) for i in range(len(zPrimeARC))]
+                dataf = { 'Frequency' :intFreq,'Time In Seconds' : intTS, 'Z Prime' : intZPrime, 'Z Double Prime' : intZDoublePrime, 'Z Prime Ohmic Corrected' : zPrimeOC,
+                'z Prime Area Corrected' : zPrimeARC, 'Z Double Prime Area Corrected' : zDoublePrimeARC, '+- Z Double Prime' : positiveZDoublePrime, 'DUAL COL' : comb} #column headings for the excel file
+                df = pd.DataFrame(data=dataf)
+                fileName = nameoffile +'.csv'
+                df.to_csv(fileName,index = False)
+                self.listOfCSV.append(fileName)
+                self.listOfComb.append(comb)
+                os.chdir("DRT-Preprocessing")
+                dataDRT = {'Frequency' : intFreq, 'Z Prime Ohmic Corrected' : zPrimeARC, 'Z Double Prime Area Corrected' : zDoublePrimeARC}
+                dt = pd.DataFrame(data=dataDRT)
+                noRun1 = nameoffile.strip('Run01')
+                fileName = noRun1 + 'DRTPP.csv'
+                dt.to_csv(fileName,index=False,header=None)
+                print(file, " has been parsed. continuing to next file...")
+                os.chdir(impFiles)
+
             
     
     #Helper function to get the range of the location of the ohmic
