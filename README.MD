@@ -70,6 +70,7 @@ No versioning control has been set up yet but I am working on having this work i
 ## Authors
 
 * **Jonathan Obenland** - *Initial work* - [Jonathan Obenland](https://github.com/jobenland)
+* **Nick Robinson** - *DRT* -[Nick Robinson](https://github.com/nickarobinson99)
 
 ## Credit
 * **Flat Icon** - *Data mining Icon* - [FlatIcon](https://www.flaticon.com/authors/flat-icons)
