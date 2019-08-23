@@ -68,8 +68,8 @@ class Ui(QtWidgets.QMainWindow):
         
         self.show()
     def DRT(self):
-        #base=os.getcwd()
-        #self.infoWindow.setText(open('Information/drt.html').read())
+        base=os.getcwd()
+        self.infoWindow.setText(open('Information/drt.html').read())
         input_directory = self.drtFilePath.text()
         regularization = self.drtRegularization.text()
 
@@ -92,7 +92,7 @@ class Ui(QtWidgets.QMainWindow):
                 f = File_In(input_directory +'/'+ file, output_directory, regularization=regularization)
         print("DRT FINISHED")
         os.chdir(base)
-        #self.infoWindow.setText(open('Information/idle.html').read())
+        self.infoWindow.setText(open('Information/idle.html').read())
     def fcSt(self):
         path = self.xrdFileText_2.text()
         csvname = self.fcCombine.text()
