@@ -60,7 +60,7 @@ class Ui(QtWidgets.QMainWindow):
         self.xrdBrowse.clicked.connect(self.getMdatFolderxrd)
         self.fcBrowse.clicked.connect(self.getMdatFolderfc)
         self.drtBrowse.clicked.connect(self.getMdatFolderdrt)
-
+        self.mcBrowse.clicked.connect(self.getMdatFoldermc)
         self.tdStart.clicked.connect(self.printButtonPressed) # Remember to pass the definition/method, not the return value!
         self.xrdStart.clicked.connect(self.xrdSt)
         self.fcStart.clicked.connect(self.fcSt)
@@ -229,6 +229,11 @@ class Ui(QtWidgets.QMainWindow):
         os.chdir(base)
         self.infoWindow.setText(open('Information/idle.html').read())
 
+    def getMdatFoldermc(self):
+        pathToWallpaperDir = os.path.normpath(
+            QFileDialog.getExistingDirectory(self))
+        fileview = self.findChild(QtWidgets.QLineEdit, 'mcFileText')
+        fileview.setText(pathToWallpaperDir)
     
     def getMdatFoldertd(self):
         pathToWallpaperDir = os.path.normpath(
