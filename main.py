@@ -67,6 +67,14 @@ class Ui(QtWidgets.QMainWindow):
         self.drtStart.clicked.connect(self.DRT)
         
         self.show()
+    #NICK, CALLS TO ALL OF MASS CONVERTER GO HERE
+    #mcFlag is the object of the flag variable in the UI
+    def mc(self):
+        base = os.getcwd()
+        input_directory = self.mcFilePath.text()
+        falgs
+
+
     def DRT(self):
         base=os.getcwd()
         self.infoWindow.setText(open('Information/drt.html').read())
@@ -1077,7 +1085,882 @@ class xrdConvert():
                 df[head] = listOfComb[arr]
                 df.to_csv(fileN, index = False)
 
+class mc:
+    def __init__(self):
+        self.IMPEDANCE_COLNAMES = [
+            "Time", 
+            "Time-Hours", 
+            "Electrode", 
+            "Ohmic", 
+            "TASR"
+            ]
+        self.DYNAMIC_COLNAMES = [
+            "ABS_TIME",
+            "Time_Min",
+            "Time-Hours",
+            "PPD"
+            ]
+        self.STATIC_COLNAMES = [
+            "ABS_TIME",
+            "Time_Min",
+            "Time-Hours",
+            "Voltage"
+            ]
+        self.ENCODING = "ISO-8859-1"
+        self.IMPEDANCE_TAG = "IMPEDANCE"
+        self.STATIC_TAG = "STATIC"
+        self.DYNAMIC_TAG = "DYNAMIC"
+
+        self.LOOKUP_FILE_BASE = "File Base:"
+        self.LOOKUP_DATE = "Date:"
+        self.LOOKUP_TIME = "Time:"
+        self.LOOKUP_END_HEADER = "End Header:"
+        self.EURO_MACHINE_FILE_BASE = "EIS_OCV_600_aging"
+        self.NA_MACHINE_FILE_BASE = "EIS_OCV_IV_Aging_600"
+
+        self.IMP_600_OLD = "IMP_IV_600"
+        self.IMP_600_NEW = "OCV_IV_600"
+
+    def main(keywords, AGING, RAW_PATH, EXPORT_PATH, IMPORT_PATH):
+
+        strkey = keywords.strip(' ')
+        list_keywords = strkey.split(',')
+        new_filelist = []
+        for word in list_keywords:
+            for file in FILE_LIST:
+                if word in file and '.mdat' in file:
+                    
+                    new_filelist.append(file)
+        new_filelist = list(set(new_filelist))
+        print(new_filelist)
+        if IMPORT_PATH == '':
+            IMPORT_PATH = RAW_PATH + '/Data'
         
+        fh = FileHandler(IMPORT_PATH, EXPORT_PATH, file_list=new_filelist)
+        fh.unzipDirectory(FILE_LIST, RAW_PATH, IMPORT_PATH)
+        
+        fh.populate_dicts(IMPORT_PATH)
+        fh.ohmicValues = [LowerOhmic, UpperOhmic]
+
+        finished_filelist = []
+        for file in new_filelist:
+            finished_filelist.append(file.strip('.mdat'))
+        
+        arc = [0,0,0]
+        os.chdir(IMPORT_PATH)
+        GalvanoHolder = Galvanodynamic(['EMPTY'])
+        for experiment in natsort.natsorted(finished_filelist):
+            os.chdir(IMPORT_PATH + '/' + experiment)
+            imp = None
+            dyn = None
+            stat = None
+            
+            if len(fh.dict_impedance[experiment]):
+                arc[0] += 1
+                imp = Impedance(fh.dict_impedance[experiment])
+                
+            if len(fh.dict_dynamic[experiment]):
+                arc[1] += 1
+                dyn = Galvanodynamic(fh.dict_dynamic[experiment])
+
+            if len(fh.dict_dynamic[experiment]):
+                arc[2] += 1
+                stat = Galvanostatic(fh.dict_static[experiment])
+
+            for run_folder in os.listdir(IMPORT_PATH + '/' + experiment):
+                os.chdir(IMPORT_PATH + '/' + experiment + '/' + run_folder)
+                if imp != None:
+                    imp.extractData(fh.dict_impedance[experiment], IMPORT_PATH + '/' + experiment + '/' + run_folder, EXPORT_PATH, AGING)
+                if dyn != None:
+                    vals = dyn.extractData(fh.dict_dynamic[experiment], IMPORT_PATH + '/' + experiment + '/' + run_folder, EXPORT_PATH, AGING)
+                    if not AGING:
+                        for v in vals:
+                            GalvanoHolder.fileDataList.append(v)
+                if stat != None:
+                    stat.extractData(fh.dict_static[experiment], IMPORT_PATH + '/' + experiment + '/' + run_folder)
+
+            if dyn != None:
+                dyn.createCSV(experiment, EXPORT_PATH)
+            if stat != None:
+                stat.createCSV(experiment, EXPORT_PATH)
+            if imp != None:
+                imp.createCSV(experiment, EXPORT_PATH)
+        if not AGING and os.path.exists(EXPORT_PATH + '/imp_file_csvs'):
+            temp_Impedance = Impedance(['EMPTY'])
+            temp_Impedance.createSummary(EXPORT_PATH + '/imp_file_csvs')
+            temp_Impedance = None
+            if os.path.exists(EXPORT_PATH + '/dyn_file_csvs'):
+                GalvanoHolder.createSummary(EXPORT_PATH + '/dyn_file_csvs')
+        
+        fh.combine_CSVs(EXPORT_PATH)
+        fh.fix_CSV_time(fh.finishedPath)
+        fh.create_xlsx1(fh.finishedPath)
+        
+        if not AGING:
+            fh.combineNonAgingCSVs(EXPORT_PATH, fh.finishedPath)
+
+
+        fh.convertToTxT(IMPORT_PATH)
+        #fh.clean(fh.finishedPath)
+        print(arc)
+            event, values = finished.Read(timeout=1000)
+            if event != sg.TIMEOUT_KEY:
+                print(event,values)
+            if event is None or event == 'Exit':
+                break
+        finished.Close()
+
+
+
+# Dependancy for Nicks full cell extractor classes
+class FileHandler:
+    def __init__(self, import_dir, export_dir, file_list=None):
+
+        self.directory_export = export_dir
+        self.directory_import = import_dir
+
+        if not os.path.isdir(self.directory_import):
+            os.mkdir(self.directory_import)
+        self.list_experiment = []
+        if file_list != None:
+            self.list_experiment = file_list
+        else:
+            self.list_experiment = self.import_file_names(self.directory_import)
+
+        self.dict_impedance = {}
+        self.dict_dynamic = {}
+        self.dict_static = {}
+        self.finishedPath = ''
+        self.ohmicValues = [5, 25]
+
+    def reset_file_lists(self):
+        self.list_impedance = []
+        self.list_dynamic = []
+        self.list_static = []
+    # Takes a string (directory name) and returns a list(file name strings)
+    def import_file_names(self, directory):
+        return natsort.natsorted(os.listdir(directory))
+ 
+    def unzipFile(self, zip_name, directory):
+        #print("Unzipping file ", zipName)
+        zipcounter = 0
+        if zip_name and directory and ('.zip' or '.mdat' in zip_name):
+            p_dir = '/' + directory.strip("/Data")
+            if p_dir[0] == '/':
+                p_dir = p_dir[1:]
+            zipcounter +=1 
+            with ZipFile(p_dir + '/' + zip_name, 'r') as zipObj:
+                zipObj.extractall(directory + '/' + zip_name.strip('.mdat'))
+                #print("Zip extraction completed")
+        else:
+            print("Invalid filename or directory")
+    def unzipDirectory(self, file_list, in_directory, out_directory):
+        if os.path.isdir(in_directory) and os.path.isdir(out_directory):
+            os.chdir(in_directory)
+            exp_list = []
+            counter = 0
+            for file in file_list:
+                if (('.mdat' or '.zip') in file):
+                    exp_list.append(file.split('.')[0])
+                    try:
+                        os.mkdir(out_directory + '/' + exp_list[counter])
+                    except FileExistsError:
+                        os.chdir(out_directory + '/' + exp_list[counter])
+
+                    except FileNotFoundError:
+                        print(file + " not found")
+                    if file:
+                        self.unzipFile(file, out_directory)
+                    counter += 1
+
+
+    def populate_dicts(self, directory):
+        os.chdir(directory)
+        for exp in natsort.natsorted(os.listdir(directory)):
+            self.dict_dynamic[exp] = []
+            self.dict_impedance[exp] = []
+            self.dict_static[exp] = []
+            for folder in os.listdir(directory + '/' + exp):
+
+                for file in natsort.natsorted(os.listdir(directory + '/' + exp + '/' + folder)):
+                    
+                    with open(directory + '/' + exp + '/' + folder + '/' + file, 'r', encoding=ENCODING) as f:
+                        if '.mpro' not in file:
+                            for row in f:
+                                if 'galvanostatic' in row.lower():
+                                    if file not in self.dict_static[exp]:
+                                        self.dict_static[exp].append(file)
+                                elif 'galvanodynamic' in row.lower():
+                                    if file not in self.dict_dynamic[exp]:
+                                        self.dict_dynamic[exp].append(file)
+                                elif 'impedance' in row.lower():
+                                    if file not in self.dict_impedance[exp]:
+                                        self.dict_impedance[exp].append(file)
+                                    
+    def convert_date(self, euro_date):
+        split_date = euro_date.split("/")
+        return split_date[1] + "/" + split_date[0] + "/" + split_date[2]
+
+
+    def combine_CSVs(self, directory):
+        self.finishedPath = directory + '/' + 'finished'
+        if os.path.exists(self.finishedPath):
+            print('finished path found')
+        else:
+            os.mkdir(self.finishedPath)
+        os.chdir(directory)
+        new_file_name = ""
+        file_list = natsort.natsorted(os.listdir(directory))
+        
+        f_type_dict = {}
+        f_key = ""
+
+        for file in file_list:
+            
+            if '.csv' in file:
+                temp_string = str(re.findall(r"\D(\d{3})\D", " "+file+" ")[0])
+                if 'IMPEDANCE' in file.upper():
+                    f_key = "IMPEDANCE+" + temp_string
+                    if temp_string + "_IMPEDANCE" in file:
+                        new_file_name = file.replace(temp_string + "_IMPEDANCE", temp_string + '_1_IMPEDANCE')
+                    elif 'initial_IMPEDANCE' in file:
+                        new_file_name = file.replace('initial_IMPEDANCE', 'initial_1_IMPEDANCE')
+                    elif 'aging_IMPEDANCE' in file:
+                        new_file_name = file.replace('aging_IMPEDANCE', 'aging1_IMPEDANCE')
+                    else:
+                        new_file_name = file
+
+                elif 'DYNAMIC' in file.upper():
+                    f_key = "DYNAMIC+" + temp_string
+                    if temp_string + "_DYNAMIC" in file:
+                        new_file_name = file.replace(temp_string + "_DYNAMIC", temp_string + '_1_DYNAMIC')
+                    elif 'initial_DYNAMIC' in file:
+                        new_file_name = file.replace('initial_DYNAMIC', 'initial_1_DYNAMIC')
+                    elif 'aging_DYNAMIC' in file:
+                        new_file_name = file.replace('aging_DYNAMIC', 'aging1_DYNAMIC')
+                    else:
+                        new_file_name = file
+
+                elif 'STATIC' in file.upper():
+                    f_key = "STATIC+" + temp_string
+                    if temp_string + "_STATIC" in file:
+                        new_file_name = file.replace(temp_string + "_STATIC", temp_string + '_1_STATIC')
+                    elif 'initial_STATIC' in file:
+                        new_file_name = file.replace('initial_STATIC', 'initial_1_STATIC')
+                    elif 'aging_STATIC' in file:
+                        new_file_name = file.replace('aging_STATIC', 'aging1_STATIC')
+                    else:
+                        new_file_name = file
+
+                else:
+                    print("File type not found (combineCSVs) for file:", file)
+
+                if new_file_name:
+                    os.rename(file, new_file_name)
+
+                # If the key is in the dictonary, add the new file to the list at that key
+                if  f_key not in f_type_dict:
+                    f_type_dict[f_key] = []
+                    f_type_dict[f_key].append(new_file_name)
+
+                # Otherwise, create a new key with the value of a blank list and append the file to that list
+                else:
+                    f_type_dict[f_key].append(new_file_name)
+
+                f_key = ""
+
+        flist = []
+        for key in f_type_dict:
+            key = list(set(key))
+        for key in f_type_dict:
+            for f in f_type_dict[key]:
+                if os.path.exists(directory + '/' + f):
+                    flist.append(f)
+            flist = [x for x in flist if x]
+            if len(flist):
+                flist = natsort.natsorted(flist)
+                end_val = flist[len(flist) -1]
+                if ('1_' in end_val) and (('11' not in end_val) and ('10' not in end_val) and ('12' not in end_val)):
+                    flist.insert(0, end_val)
+                    flist.pop(len(flist) - 1)
+                print(flist)
+                combined_csv = pd.concat([pd.read_csv(directory + '/' + f) for f in flist])
+                combined_csv.to_csv(self.finishedPath + '/' + key.split('+')[0] + '_' + key.split('+')[1] + '.csv')
+                flist = []
+                print(key.split('+')[0], 'created.')
+    
+    def fix_CSV_time(self, file_path):
+        os.chdir(file_path)
+        list_files = natsort.natsorted(os.listdir(file_path))
+        colnames = []
+        for fileName in list_files:
+            if 'IMP' in fileName:
+                colnames = IMPEDANCE_COLNAMES
+                dataf = pd.read_csv(fileName, names=colnames)
+                time_s = dataf.Time.tolist()[1:]
+                time_s_f = []
+                for i in time_s:
+                    try:
+                        time_s_f.append(float(i))
+                    except(ValueError):
+                        continue
+                time_minimum = min(time_s_f)
+                time_hour = []
+
+                for t in range(len(time_s)):
+                    time_hour.append((time_s_f[t] - time_minimum) / 3600)
+
+                new_dataf = {
+                    'Time_Seconds': dataf.Time.tolist()[1:],
+                    'Time_Hours': time_hour,
+                    'Electrode': dataf.Electrode.tolist()[1:],
+                    'Ohmic': dataf.Ohmic.tolist()[1:],
+                    'TASR': dataf.TASR.tolist()[1:]
+                }
+
+                new_frame = pd.DataFrame(data=new_dataf)
+                new_frame.sort_values(by='Time_Seconds')
+                new_frame.to_csv(fileName.replace('.csv', '_f.csv'), index=False)
+                os.remove(fileName)
+            if DYNAMIC_TAG in fileName:
+                colnames = DYNAMIC_COLNAMES
+                dataf = pd.read_csv(fileName, names=colnames)
+                time_s = dataf.ABS_TIME.tolist()[1:]
+                time_s_f = []
+                for i in time_s:
+                    try:
+                        time_s_f.append(float(i))
+                    except(ValueError):
+                        continue
+                time_minimum = min(time_s_f)
+                
+                time_hours = []
+                time_min = dataf.Time_Min.tolist()
+
+                for i in range(1, len(time_min)):
+                    time_min[i] = math.floor(float(time_min[i]))
+
+                for t in range(len(time_s)):
+                    time_hours.append((time_s_f[t] - time_minimum) / 3600)
+
+                new_dataf = {
+                    'ABS_TIME': dataf.ABS_TIME.tolist()[1:],
+                    'Time_Min': time_min[1:],
+                    'Time-Hours': time_hours,
+                    'PPD': dataf.PPD.tolist()[1:]
+                }
+
+                new_frame = pd.DataFrame(data=new_dataf)
+                new_frame.sort_values(by='ABS_TIME')
+                new_frame.to_csv(fileName.replace('.csv', '_f.csv'), index=False)
+                os.remove(fileName)
+            if 'STATIC' in fileName:
+                colnames = STATIC_COLNAMES
+                dataf = pd.read_csv(fileName, names=colnames)
+                time_s = dataf.ABS_TIME.tolist()[1:]
+                time_s_f = []
+                for i in time_s:
+                    try:
+                        time_s_f.append(float(i))
+                    except(ValueError):
+                        continue
+                time_minimum = min(time_s_f)
+                time_min = dataf.Time_Min.tolist()
+                for i in range(1, len(time_min)):
+                    time_min[i] = math.floor(float(time_min[i]))
+                time_hours = []
+                for t in range(len(time_s_f)):
+                    time_hours.append((time_s_f[t] - time_minimum) / 3600)
+
+                new_dataf = {
+                    'ABS_TIME': dataf.ABS_TIME.tolist()[1:],
+                    'Time_Min': time_min[1:],
+                    'Time-Hours': time_hours,
+                    'Voltage': dataf.Voltage.tolist()[1:]
+                }
+
+                new_frame = pd.DataFrame(data=new_dataf)
+                new_frame.sort_values(by='ABS_TIME')
+                new_frame.to_csv(fileName.replace('.csv', '_f.csv'), index=False)
+                os.remove(fileName)
+                print(fileName, 'time fixed')
+
+    def create_xlsx1(self, directory):
+        merge_all_to_a_book(glob.glob(directory + '/*.csv'), "combined.xlsx")
+        print("COMBINED XLSX CREATED - DONE")
+    def clean(self, directory):
+        for f in os.listdir(directory):
+            if '.csv' in f:
+                os.remove(directory + '/' + f)
+    def convertDate(self, europeanDate):
+        splitDate = europeanDate.split("/")
+        return splitDate[1] + "/" + splitDate[0] + "/" + splitDate[2]
+    def getMetaData(self, filename, directory):
+        multistatVersionFound = False
+        convertDateB = False
+        LOOKUP_DATE = "Date:"
+        LOOKUP_TIME = "Time:"
+        stringDate = ''
+        stringTime = ''
+        stf = False
+        sdf = False
+        with open(directory + '/' + filename, 'r', encoding=ENCODING) as file:
+            for line in file:
+                if '1.7a-mem1' in line:
+                    multistatVersionFound = True
+                    convertDateB = True
+                if '1.7f' or '1.6c' in line:
+                    multistatVersionFound = True
+                    convertDateB = False
+                if multistatVersionFound and LOOKUP_DATE in line:
+                    stringDate = line.split()[1]
+                    if convertDateB:
+                        stringDate = self.convertDate(stringDate)
+                    sdf = True
+                elif multistatVersionFound and LOOKUP_TIME in line and 'Delta' not in line and 'Offset' not in line and 'Start' not in line and 'Total' not in line:
+                    stringTime = line.split()
+                    stf = True
+                if sdf and stf:
+                    break
+        return [stringDate, stringTime[1] + ' ' + stringTime[2]]
+    def convertToTxT(self, directory):
+        os.chdir(directory)
+
+        for folders in os.listdir(directory):
+
+            for f in os.listdir(directory + '/' + folders):
+                
+                for files in os.listdir(directory + '/' + folders + '/' + f):
+                    os.chdir(directory + '/' + folders + '/' + f)
+                    if '.z' in files:
+                        os.rename(files, files.replace('im.z', '.txt'))
+                    if '.cor' in files:
+                        os.rename(files, files.replace('.cor', '.txt'))
+    def combineNonAgingCSVs(self, csv_directory, output_directory):
+        #Traverse through the folders containing the non-aging CSVs
+        #csv directory is the directory the contains the folders with the z/cor csvs
+        imp_directory = csv_directory + '/imp_file_csvs'
+        dyn_directory = csv_directory + '/dyn_file_csvs'
+        os.chdir(output_directory)
+
+        if os.path.exists(imp_directory):
+            os.chdir(imp_directory)
+            #for file in natsort.natsorted(os.listdir(imp_directory)):
+            merge_all_to_a_book(natsort.natsorted(os.listdir(imp_directory)), output_directory + "/combined_impedance.xlsx")
+
+        if os.path.exists(dyn_directory):
+            os.chdir(dyn_directory)
+            #for file in natsort.natsorted(os.listdir(dyn_directory)):
+            merge_all_to_a_book(natsort.natsorted(os.listdir(dyn_directory)), output_directory + "/combined_dynamic.xlsx")
+
+# Class for Nicks full cell batch extractor for Galvanostatic files
+class Impedance(FileHandler):
+    def __init__(self, fileList):
+        self.listFiles = []
+        for file in fileList:
+            self.listFiles.append(file)
+
+        self.electrodeASRList = []
+        self.totalASRList = []
+        self.ohmicList = []
+
+        self.timeSeconds = []
+        self.timeHours = []
+        #ZPrime = []
+        #ZPrime = []
+        ZPrimeShort = []
+        ZPrimeABS = []
+
+    # Written by Jobenland
+    def getRange(self, intZDoublePrime):
+        PG=[]
+        NG=[]
+        t=0
+        #first part tests point and the next point
+        #to find positive then negative
+        startRange = 0
+        for i in range(len(intZDoublePrime)):
+            if intZDoublePrime[i] > 0:
+                t+1
+            elif intZDoublePrime[i] < 0:
+                if intZDoublePrime[i-1] >0:
+                    indexx = i-1
+                    break
+
+        #makes lists for all the positive corresponding index
+        #makes lists for all the negative corresponding index
+        for i in range(len(intZDoublePrime)):
+            if intZDoublePrime[i] < 0:
+                PG.append(i)
+            elif intZDoublePrime[i] > 0:
+                NG.append(i)
+            elif intZDoublePrime[i] == 0:
+                OH = intZDoublePrime[i]
+                break
+    
+       #checking to make sure that the graph has both
+       #positive and negative values
+        if NG == [] and PG != []:
+            startRange = min(intZDoublePrime)
+            endRange = -1
+        if NG != [] or PG != []:
+            j = (len(NG))
+            startRange = int(min(intZDoublePrime))
+            endRange = startRange + 1
+        try:
+            return(startRange,endRange)
+        except UnboundLocalError:
+            return(0,1)
+    def extractData(self, fileList, directory, output_directory, is_aging):
+        os.chdir(directory)
+        intTime = []
+        ohmicZ2Prime = 0
+        ohmicZPrimeIndex = 0
+
+        ohmicZPrime = 0
+        ohmicMin = 0
+        headerFound = False
+        totalASR = 0
+        fileList = natsort.natsorted(fileList)
+            
+        for files in fileList:
+            ZPrime = []
+            Z2Prime = []
+            frequency = []
+            if '.z' in files:
+                
+                with open(directory + '/' + files, 'r', encoding=ENCODING) as f:
+                    for row in f:
+                        if LOOKUP_END_HEADER in row:
+                            headerFound = True
+                            continue
+                        elif headerFound:
+                            ZPrime.append(float(row.split('\t')[4]))
+                            Z2Prime.append(float(row.split('\t')[5]))
+                            frequency.append(float(row.split('\t')[1]))
+                    startrange, endrange = self.getRange(Z2Prime)
+                    
+                    if endrange > 0:
+                        ohmicZ2Prime = min([abs(i) for i in Z2Prime[startrange:endrange]])
+                        mv1 = 0
+                        mv2 = 0
+                        firstval = False
+                        for values in Z2Prime:
+                            if values < 0 and  not firstval:
+                                mv1 = values
+                                firstval = True
+                            if firstval and (values > mv1):
+                                ohmicZ2Prime = mv1
+                                print("New ohmic minimum found")
+                            else:
+                                mv1 = values
+                    elif endrange == -1:
+                        ohmicZ2Prime = min(Z2Prime)
+
+                    
+
+                    if ohmicZ2Prime in Z2Prime:
+                        ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
+                    else:
+                        ohmicZPrimeIndex = Z2Prime.index(-ohmicZ2Prime)
+
+                    ohmicMin = ZPrime[ohmicZPrimeIndex]
+                    ASRMax = max(ZPrime[ohmicZPrimeIndex:])
+                    eASR = ASRMax - ohmicMin
+                    if eASR == 0:
+                        print(files)
+                        print(ZPrime)
+                        print(Z2Prime)
+
+                    self.electrodeASRList.append(eASR)
+                    self.totalASRList.append(ASRMax)
+                    self.ohmicList.append(ohmicMin)
+
+                    dateTimeTuple = self.getMetaData(files, directory)
+                    dateTime = datetime.datetime.strptime("{} {}".format(dateTimeTuple[0], dateTimeTuple[1]), '%m/%d/%Y %I:%M:%S %p')
+                    self.timeSeconds.append(float(time.mktime(dateTime.timetuple())))
+                    minTime = min(self.timeSeconds)
+
+                    self.timeHours = [((self.timeSeconds[i]-minTime)/3600) for i in range(len(self.timeSeconds))]
+
+                    #Z CSV creation
+                    if not is_aging:
+                        dataf = {
+                            'Frequency': frequency,
+                            'ZPrime': ZPrime,
+                            'ZDoublePrime': Z2Prime
+                        }
+                        self.createSingleFileCSV(dataf, files, output_directory)
+                        print("IMPEDANCE createSingleFileCSV called")
+            headerFound = False
+        #print("Impedance data extraction complete")
+    
+    def calculateFromCSV(self, file):
+        dataf = pd.read_csv(file, names=['Frequency', 'ZPrime', 'ZDoublePrime'])
+        Frequency = dataf.Frequency.tolist()[1:]
+        ZPrime = dataf.ZPrime.tolist()[1:]
+        Z2Prime = dataf.ZDoublePrime.tolist()[1:]
+
+        for i in range(len(ZPrime)):
+            ZPrime[i] = float(ZPrime[i])
+            Z2Prime[i] = float(Z2Prime[i])
+            Frequency[i] = float(Frequency[i])
+
+        startRange, endrange = self.getRange(Z2Prime)
+
+        if endrange > 0:
+            ohmicZ2Prime = min([abs(i) for i in Z2Prime[startRange:endrange]])
+            mv1 = 0
+            mv2 = 0
+            firstval = False
+            for values in Z2Prime:
+                if values < 0 and  not firstval:
+                    mv1 = values
+                    firstval = True
+                if firstval and (values > mv1):
+                    ohmicZ2Prime = mv1
+                    print("New ohmic minimum found")
+                else:
+                    mv1 = values
+        elif endrange == -1:
+            ohmicZ2Prime = min(Z2Prime)
+        
+        if ohmicZ2Prime in Z2Prime:
+            ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
+        else:
+            ohmicZPrimeIndex = Z2Prime.index(-ohmicZ2Prime)
+        ohmicMin = ZPrime[ohmicZPrimeIndex]
+        ASRMax = max(ZPrime[ohmicZPrimeIndex:])
+        eASR = ASRMax - ohmicMin
+
+        return [file, eASR, ASRMax, ohmicMin]
+    def createCSV(self, fileName, directory):
+        os.chdir(directory)
+        fn = fileName + '_' + IMPEDANCE_TAG + '.csv'
+
+        dataf = {
+            'Time': self.timeSeconds,
+            'Time-Hours': self.timeHours,
+            'Electrode': self.electrodeASRList,
+            'Ohmic': self.ohmicList,
+            'TASR': self.totalASRList
+        }
+        if len(self.timeSeconds) != 0:
+            df = pd.DataFrame(data=dataf)
+            df.to_csv(fn, index=False)
+            print("Created", fn)
+    def createSingleFileCSV(self, dataframe, filename, export_directory):
+        export_dir = export_directory + '/' + "imp_file_csvs"
+        try:
+            os.mkdir(export_dir)
+        except(FileExistsError):
+            pass
+        os.chdir(export_dir)
+        df = pd.DataFrame(data=dataframe)
+        df.to_csv(filename.replace('.z', '.csv'), index=False)
+    def createSummary(self, directory):
+        os.chdir(directory)
+        dataList = []
+        for csv in natsort.natsorted(os.listdir(directory)):
+            dataList.append(self.calculateFromCSV(directory + '/' + csv))
+        fn_list = []
+        eASR_list = []
+        ASRM_list = []
+        ohmicMin_List = []
+        for data in dataList:
+            fn_list.append(data[0])
+            eASR_list.append(data[1])
+            ASRM_list.append(data[2])
+            ohmicMin_List.append(data[3])
+        for i in range(len(fn_list)):
+            fn_list[i] = fn_list[i].split('/')[len(fn_list[i].split('/')) - 1]
+        dataf= {
+            'File': fn_list,
+            'Electrode_ASR': eASR_list,
+            'ASR_Max': ASRM_list,
+            'Ohmic': ohmicMin_List
+        }
+        summary_frame = pd.DataFrame(data=dataf)
+        summary_frame.to_csv('1_Summary.csv', index=False)
+
+# Class for Nicks full cell batch extractor for Galvanostatic files                    
+class Galvanostatic(FileHandler):
+    def __init__(self, fileList):
+        self.listFiles = copy.deepcopy(fileList)
+        self.voltageList = []
+        self.minExpTime = -1
+        self.timeSince1970 = []
+
+        self.timeSeconds = []
+        self.timeHours = []
+        self.expTime = []
+    def extractData(self, fl, directory):
+        fileList = natsort.natsorted(fl)
+        if len(fileList) > 0:
+            os.chdir(directory)
+            intTime = []
+
+            for files in fileList:
+
+                with open(files, 'r', encoding=ENCODING) as f:
+                    lineGen = itls.islice(f, 0, None, 60)
+                    for row in f:
+                        if LOOKUP_END_HEADER in row:
+                            for x in lineGen:
+                                x_split = x.split('\t')
+                                intTime.append(float(x_split[0]))
+                                self.voltageList.append(float(x_split[1]))
+
+                dateTimeTuple = self.getMetaData(files, directory)
+                dateTime = datetime.datetime.strptime("{} {}".format(dateTimeTuple[0], dateTimeTuple[1]), '%m/%d/%Y %I:%M:%S %p')
+                self.timeSeconds.append(float(time.mktime(dateTime.timetuple())))
+
+            if self.minExpTime == -1:
+                self.minExpTime = intTime[0]
+
+            for i in intTime:
+                self.expTime.append(i - self.minExpTime)
+
+            
+
+            
+
+            # For i in (time since experiment started), 
+            for i in self.expTime:
+                self.timeSince1970.append((i + self.timeSeconds[0]))
+            minTime = min(self.timeSince1970)
+            for i in self.timeSince1970:
+                self.timeHours.append((i - minTime) / 3600)
+                
+    
+    def createCSV(self, filename, directory):
+
+        os.chdir(directory)
+        fn = filename + '_' + STATIC_TAG + '.csv'
+        dataf = {
+        "ABS_TIME": self.timeSince1970, # 165
+        'Time_Min': self.expTime, # 165
+        'Time-Hours': self.timeHours,  # 165
+        'Voltage': self.voltageList}   # 105
+        if len(self.expTime) != 0:
+            df = pd.DataFrame(data=dataf)
+            df.to_csv(fn, index = False)
+            print("Created", fn)
+
+# Class for Nicks full cell batch extractor for Galvanodynamic files
+class Galvanodynamic(FileHandler):
+
+    def __init__(self, fileList):
+        
+        self.listFiles = []
+        for file in fileList:
+            self.listFiles.append(file)
+        self.timeSeconds = []
+        self.adjustedTimeSeconds = []
+        self.realTime = []
+        self.timeHours = []
+        self.peakPowerDensityList = []
+        self.CorrectedTimeList = []
+        self.fileDataList = []
+    def createSingleFileCSV(self, dataframe, filename, export_directory):
+        
+        export_dir = export_directory + '/' + "dyn_file_csvs" 
+        try:
+            os.mkdir(export_dir)
+        except(FileExistsError):
+            pass
+        os.chdir(export_dir)
+        dataf = pd.DataFrame(data=dataframe)
+        if '.cor' in filename:
+            dataf.to_csv(filename.replace('.cor', '.csv'), index=False)
+        elif '.txt' in filename:
+            dataf.to_csv(filename.replace('.txt', '.csv'), index=False)
+    def extractData(self, fileList, directory, output_directory, is_aging):
+        os.chdir(directory)
+        fileList = natsort.natsorted(fileList)
+        ret_val = []
+        if len(fileList):
+            for file in fileList:
+                voltage = []
+                current = []
+                power = []
+                ocv = 0
+                dataFound = False
+                if file :
+                    with open(directory + '/' + file, 'r', encoding=ENCODING) as f:
+                        for row in f:
+                            if 'Open Circuit Potential' in row:
+                                ocv = float(row.split(':')[1].strip('\t'))
+                            if LOOKUP_END_HEADER in row:
+                                dataFound = True
+                            elif dataFound:
+                                split_line = row.split('\t')
+                                self.timeSeconds.append(float(split_line[0]))
+                                voltage.append(float(split_line[1]))
+                                current.append(float(split_line[2]))
+                                power.append(float(split_line[1]) * float(split_line[2]))
+                    if len(power):
+                        self.peakPowerDensityList.append(max(power))
+                    else:
+                        self.peakPowerDensityList.append(0)
+                    metaData = self.getMetaData(file, directory)
+                    dateTime = datetime.datetime.strptime("{} {}".format(metaData[0], metaData[1]), '%m/%d/%Y %I:%M:%S %p')
+                    self.realTime.append(float(time.mktime(dateTime.timetuple())))
+
+                    if not is_aging:
+                        dataf = {
+                            'Voltage': voltage,
+                            'Current': current,
+                            'Power': power
+                        }
+                        self.createSingleFileCSV(dataf, file, output_directory)
+                        if power and ocv:  
+                            ret_val.append(self.calculateFromCSV(file, ocv, max(power)))
+            timeMin = min(self.realTime)
+            for i in self.realTime:
+                self.adjustedTimeSeconds.append(i - timeMin)
+            for i in self.adjustedTimeSeconds:
+                self.timeHours.append(i / 3600)
+        if not is_aging:
+            return ret_val
+        else:
+            return None
+    def createCSV(self, filename, directory):
+        os.chdir(directory)
+        fn = filename + '_' + DYNAMIC_TAG + '.cor'
+        dataf = {
+        'ABS_TIME': self.realTime,
+        'Time': self.adjustedTimeSeconds,
+        "Time-Hours": self.timeHours, 
+        'PPD': self.peakPowerDensityList
+        }
+        if len(self.adjustedTimeSeconds) != 0:
+            df = pd.DataFrame(data=dataf)
+            if '.cor' in fn:
+                df.to_csv(fn.replace('.cor', '.csv'), index = False)
+            elif '.txt' in fn:
+                df.to_csv(fn.replace('.txt', '.csv'), index = False)
+            print("Created", fn)
+    def calculateFromCSV(self, file, ocv, ppd):
+        return [file, ocv, ppd]
+    def createSummary(self, directory):
+        os.chdir(directory)
+        file_l = []
+        ppd_l = []
+        ocv_l = []
+
+        for i in self.fileDataList:
+            file_l.append(i[0])
+            ppd_l.append(i[2])
+            ocv_l.append(i[1])
+        dataf = {
+            'File': file_l,
+            'PPD': ppd_l,
+            'OCV': ocv_l
+        }
+        df = pd.DataFrame(data=dataf)
+        df.to_csv('1_Summary.csv', index=False)
+
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
