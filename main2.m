@@ -13,12 +13,12 @@ function [col_g, col_t] = main2(x_ridge_combined, freq_out, freq, epsilon, dir_o
     col_t_1 = rl(2)
     whos dir_out
     whos filen
-    output = [dir_out "/" filen]
+    output = [dir_out "/" filen ".csv"]
     output
     fid  = fopen(output,'wt');
     fprintf(fid,'%s, %e \n','L',col_g_1);
     fprintf(fid,'%s, %e \n', 'R',col_t_1);
-    fprintf(fid,'%s, %s \n','gamma(tau)','tau');
-    fprintf(fid,'%e, %e \n', [col_g(:), col_t(:)].');
+    fprintf(fid,'%s, %s, %s \n','gamma(tau)','tau', 'frequency');
+    fprintf(fid,'%e, %e, %e \n', [col_g(:), col_t(:), 1./col_t(:)].');
     fclose(fid);
 end
