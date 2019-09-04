@@ -65,8 +65,29 @@ class Ui(QtWidgets.QMainWindow):
         self.xrdStart.clicked.connect(self.xrdSt)
         self.fcStart.clicked.connect(self.fcSt)
         self.drtStart.clicked.connect(self.DRT)
+        self.mcStart.clikced.connect(self.mcSt)
+
         
         self.show()
+
+    #TODO
+    #MASS CONVERTER
+    def mcSt(self):
+        
+        base = os.getcwd()
+        directory = self.mcFileText.text()
+        flags = self.mcFlag.text()
+
+        ###
+        # NICK PUT CALLS TO METHODS AND STUFF
+        ###
+
+        print("TODO")
+        print("MC FINISHED")
+        os.chdir(base)
+        self.infoWindow.setText(open('Information/idle.html').read())
+
+
     def DRT(self):
         base=os.getcwd()
         self.infoWindow.setText(open('Information/drt.html').read())
