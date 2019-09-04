@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+'''
+A GUI Program to hold many data extraction tools to minimize the time needed to use each program
+'''
+
+__author__ = "Jonathan Obenland"
+__copyright__ = "Copyright 2019, MEII"
+__credits__ = ["Jonathan Obenland","Nick Robinson"]
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Jonathan Obenland"
+__email__ = "jobenland1@gmail.com"
+__status__ = "Production"
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog
 import os
@@ -73,7 +87,7 @@ class Ui(QtWidgets.QMainWindow):
     #TODO
     #MASS CONVERTER
     def mcSt(self):
-        
+
         base = os.getcwd()
         directory = self.mcFileText.text()
         flags = self.mcFlag.text()
