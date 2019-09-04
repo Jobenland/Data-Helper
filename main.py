@@ -79,7 +79,7 @@ class Ui(QtWidgets.QMainWindow):
         self.xrdStart.clicked.connect(self.xrdSt)
         self.fcStart.clicked.connect(self.fcSt)
         self.drtStart.clicked.connect(self.DRT)
-        self.mcStart.clikced.connect(self.mcSt)
+        self.mcStart.clicked.connect(self.mcSt)
 
         
         self.show()
@@ -89,6 +89,7 @@ class Ui(QtWidgets.QMainWindow):
     def mcSt(self):
 
         base = os.getcwd()
+        self.infoWindow.setText(open('Information/mc.html').read())
         directory = self.mcFileText.text()
         flags = self.mcFlag.text()
 
@@ -1091,7 +1092,6 @@ class xrdConvert():
 
     def generateSheets(self,listOfCSV,csvname):
         print('System STANDBY. awaiting user input')
-        
         print('Ready to ammend to ', csvname)
         writer = pd.ExcelWriter(csvname + '.xlsx', engine = 'xlsxwriter')
         for csv in listOfCSV:
