@@ -32,6 +32,9 @@ import osqp
 import matplotlib.pyplot as plot
 import natsort
 import copy
+from openpyxl import Workbook
+import pyexcel
+from pyexcel.cookbook import merge_all_to_a_book
 
 IMPEDANCE_COLNAMES = [
     "Time", 
@@ -94,6 +97,7 @@ class Ui(QtWidgets.QMainWindow):
         self.fcBrowse.clicked.connect(self.getMdatFolderfc)
         self.drtBrowse.clicked.connect(self.getMdatFolderdrt)
         self.mcBrowse.clicked.connect(self.getMdatFoldermc)
+        self.mcOutput.clicked.connect(self.getOutputFoldermc)
         self.tdStart.clicked.connect(self.printButtonPressed) # Remember to pass the definition/method, not the return value!
         self.xrdStart.clicked.connect(self.xrdSt)
         self.fcStart.clicked.connect(self.fcSt)
@@ -104,21 +108,24 @@ class Ui(QtWidgets.QMainWindow):
     def mc(self):
         #Jonathan: You need to make a GUI checkbox, and connect that checkbox to this aging variable
         # If you do not do this, a pretty big feature will be broken
-        AGING=True
+        if self.mcAging.isChecked():
+            AGING = True
+        else:
+            AGING = False
 
 
         # This section grabs and parses the file import and export paths, creates FILE_LISt
-        RAW_PATH = self.mcFileText()
+        RAW_PATH = self.mcFileText.text()
         if len(RAW_PATH) != 0:
             FILE_LIST = natsort.natsorted(os.listdir(RAW_PATH))
-        EXPORT_PATH = self.mcFileOut() #JONATHON: You need to add this box/variable, this is for the folder it will output to
+        EXPORT_PATH = self.mcExportPath.text() #JONATHON: You need to add this box/variable, this is for the folder it will output to
         IMPORT_PATH = RAW_PATH + '/Data'
 
         # Error checking for inputted paths
         try:
             if RAW_PATH:
                 os.mkdir(IMPORT_PATH)
-        except FileExitstError:
+        except FileExistsError:
             print(IMPORT_PATH+"/Data Found")
         if os.path.exists(EXPORT_PATH):
             print("Export path found")
@@ -127,7 +134,7 @@ class Ui(QtWidgets.QMainWindow):
                 os.mkdir(EXPORT_PATH)
         
         # Checking keywords, and creating new_filelist based on keywords
-        strkey = self.flags.text().strip(' ') #Not sure if you have made the flags/keywords variable yet, but it needs to exist
+        strkey = self.lineEdit.text().strip(' ') #Not sure if you have made the flags/keywords variable yet, but it needs to exist
         list_keywords = strkey.split(',')
         new_filelist = []
         for word in list_keywords:
@@ -368,7 +375,11 @@ class Ui(QtWidgets.QMainWindow):
         td.generateSheets(newZDir,csvname)
         os.chdir(base)
         self.infoWindow.setText(open('Information/idle.html').read())
-
+    def getOutputFoldermc(self):
+        pathToWallpaperDir = os.path.normpath(
+            QFileDialog.getExistingDirectory(self))
+        fileview = self.findChild(QtWidgets.QLineEdit, 'mcExportPath')
+        fileview.setText(pathToWallpaperDir) 
     def getMdatFoldermc(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
@@ -1249,8 +1260,8 @@ class FileHandler:
         zipcounter = 0
         if zip_name and directory and ('.zip' or '.mdat' in zip_name):
             p_dir = '/' + directory.strip("/Data")
-            if p_dir[0] == '/'
-                p_dir = p_dir[1:]:
+            if p_dir[0] == '/':
+                p_dir = p_dir[1:]
             zipcounter +=1 
             with ZipFile(p_dir + '/' + zip_name, 'r') as zipObj:
                 zipObj.extractall(directory + '/' + zip_name.strip('.mdat'))

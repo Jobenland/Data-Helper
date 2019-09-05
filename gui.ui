@@ -871,7 +871,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>440</x>
-       <y>180</y>
+       <y>210</y>
        <width>93</width>
        <height>28</height>
       </rect>
@@ -900,7 +900,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>90</y>
+       <y>70</y>
        <width>511</width>
        <height>22</height>
       </rect>
@@ -909,14 +909,14 @@ p, li { white-space: pre-wrap; }
       <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="placeholderText">
-      <string>File Path Willl Update here. Click Browse to browse file system for folder</string>
+      <string>Browse files for INPUT folder that the data is coming from. File path will update here</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mcBrowse">
      <property name="geometry">
       <rect>
        <x>440</x>
-       <y>140</y>
+       <y>130</y>
        <width>93</width>
        <height>28</height>
       </rect>
@@ -925,7 +925,7 @@ p, li { white-space: pre-wrap; }
       <string notr="true">background-color: rgb(0, 85, 255);</string>
      </property>
      <property name="text">
-      <string>Browse</string>
+      <string>Browse Input</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_18">
@@ -957,35 +957,6 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="value">
       <number>0</number>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="mcArea">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>190</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="text">
-      <string>0.155</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_19">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>190</y>
-       <width>55</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Area</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="mcCombined">
@@ -1041,6 +1012,51 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="text">
       <string>Flags</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="mcAging">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>200</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Aging</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="mcExportPath">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>511</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="placeholderText">
+      <string>Browse files of OUTPUT folder that data will go to. File path will update here</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="mcOutput">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>170</y>
+       <width>93</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(0, 85, 255);</string>
+     </property>
+     <property name="text">
+      <string>Browse Output</string>
      </property>
     </widget>
    </widget>
