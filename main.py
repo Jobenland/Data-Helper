@@ -106,8 +106,13 @@ class Ui(QtWidgets.QMainWindow):
         
         self.show()
     def mc(self):
+        base=os.getcwd()
+        progressbarval = 0
+        self.infoWindow.setText(open('Information/mc.html').read())
         #Jonathan: You need to make a GUI checkbox, and connect that checkbox to this aging variable
         # If you do not do this, a pretty big feature will be broken
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         if self.mcAging.isChecked():
             AGING = True
         else:
@@ -115,6 +120,8 @@ class Ui(QtWidgets.QMainWindow):
 
 
         # This section grabs and parses the file import and export paths, creates FILE_LISt
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         RAW_PATH = self.mcFileText.text()
         if len(RAW_PATH) != 0:
             FILE_LIST = natsort.natsorted(os.listdir(RAW_PATH))
@@ -122,6 +129,8 @@ class Ui(QtWidgets.QMainWindow):
         IMPORT_PATH = RAW_PATH + '/Data'
 
         # Error checking for inputted paths
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         try:
             if RAW_PATH:
                 os.mkdir(IMPORT_PATH)
@@ -137,6 +146,8 @@ class Ui(QtWidgets.QMainWindow):
         strkey = self.lineEdit.text().strip(' ') #Not sure if you have made the flags/keywords variable yet, but it needs to exist
         list_keywords = strkey.split(',')
         new_filelist = []
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         for word in list_keywords:
             for file in FILE_LIST:
                 if word in file and '.mdat' in file:
@@ -154,12 +165,16 @@ class Ui(QtWidgets.QMainWindow):
         fh.populate_dicts(IMPORT_PATH)
     
         finished_filelist = []
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         for file in new_filelist:
             finished_filelist.append(file.strip('.mdat'))
         
         arc = [0,0,0]
         os.chdir(IMPORT_PATH)
         GalvanoHolder = Galvanodynamic(['EMPTY'])
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         for experiment in natsort.natsorted(finished_filelist):
             os.chdir(IMPORT_PATH + '/' + experiment)
             imp = None
@@ -196,24 +211,32 @@ class Ui(QtWidgets.QMainWindow):
                 stat.createCSV(experiment, EXPORT_PATH)
             if imp != None:
                 imp.createCSV(experiment, EXPORT_PATH)
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         if not AGING and os.path.exists(EXPORT_PATH + '/imp_file_csvs'):
             temp_Impedance = Impedance(['EMPTY'])
             temp_Impedance.createSummary(EXPORT_PATH + '/imp_file_csvs')
             temp_Impedance = None
             if os.path.exists(EXPORT_PATH + '/dyn_file_csvs'):
                 GalvanoHolder.createSummary(EXPORT_PATH + '/dyn_file_csvs')
-        
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         fh.combine_CSVs(EXPORT_PATH)
         fh.fix_CSV_time(fh.finishedPath)
         fh.create_xlsx1(fh.finishedPath)
         
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         if not AGING:
             fh.combineNonAgingCSVs(EXPORT_PATH, fh.finishedPath)
     
-    
+        progressbarval += 10
+        self.fcProgress_2.setValue(progressbarval)
         fh.convertToTxT(IMPORT_PATH)
         #fh.clean(fh.finishedPath)
         print(arc)
+        os.chdir(base)
+        self.infoWindow.setText(open('Information/idle.html').read())
     def DRT(self):
         base=os.getcwd()
         self.infoWindow.setText(open('Information/drt.html').read())
