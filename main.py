@@ -1685,8 +1685,8 @@ class Impedance(FileHandler):
 
                         mv1 = 0
                         mv2 = 0
-                        firstval = False
-                        for values in Z2Prime:
+                        
+                        for values in Z2Prime[startrange:endrange]:
                             if values < 0 and  not firstval:
                                 mv1 = values
                                 firstval = True
@@ -1754,7 +1754,7 @@ class Impedance(FileHandler):
             mv1 = 0
             mv2 = 0
             firstval = False
-            for values in Z2Prime:
+            for values in Z2Prime[startrange:endrange]:
                 if values < 0 and  not firstval:
                     mv1 = values
                     firstval = True
