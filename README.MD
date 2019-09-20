@@ -85,12 +85,12 @@ No versioning control has been set up yet but I am working on having this work i
 
 ## Authors
 
-* **Jonathan Obenland** - *Initial work* - [Jonathan Obenland](https://github.com/jobenland)
+* **Jonathan Obenland** - *GUI, Temp Dep, XRD and Full cell* - [Jonathan Obenland](https://github.com/jobenland)
 * **Nick Robinson** - *DRT and Mass Converter* -[Nick Robinson](https://github.com/nickarobinson99)
 
 ## Credit
 * **Flat Icon** - *Data mining Icon* - [FlatIcon](https://www.flaticon.com/authors/flat-icons)
-* ** DRT Tools** - *DRT math* - [DRTTools](https://sites.google.com/site/drttools/)
+* **DRT Tools** - *DRT math* - [DRTTools](https://sites.google.com/site/drttools/)
 ## License
 
 This project is licensed under the GPL License
