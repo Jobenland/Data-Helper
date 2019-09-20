@@ -1686,17 +1686,17 @@ class Impedance(FileHandler):
                         mv1 = 0
                         mv2 = 0
                         firstval = False
-                        #for values in Z2Prime:
-                        #    if values < 0 and  not firstval:
-                        #        mv1 = values
-                        #        firstval = True
-                        #    if firstval and (values > mv1):
-                        #        ohmicZ2Prime = mv1
-                        #        print("New ohmic minimum found")
-                        #    else:
-                        #        mv1 = values
+                        for values in Z2Prime:
+                            if values < 0 and  not firstval:
+                                mv1 = values
+                                firstval = True
+                            if firstval and (values > mv1):
+                                ohmicZ2Prime = mv1
+                                print("New ohmic minimum found")
+                            else:
+                                mv1 = values
                     elif endrange == -1:
-                        ohmicZ2Prime = min(Z2Prime)
+                        ohmicZ2Prime = min([abs(i) for i in Z2Prime])
 
                     
 
@@ -1761,10 +1761,11 @@ class Impedance(FileHandler):
                 if firstval and (values > mv1):
                     ohmicZ2Prime = mv1
                     print("New ohmic minimum found")
+                    break
                 else:
                     mv1 = values
         elif endrange == -1:
-            ohmicZ2Prime = min(Z2Prime)
+            ohmicZ2Prime = min([abs(i) for i in Z2Prime])
         
         if ohmicZ2Prime in Z2Prime:
             ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
