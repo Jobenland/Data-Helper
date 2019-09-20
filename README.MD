@@ -72,6 +72,8 @@ The best way to deploy this software for use in lab is to run locally either thr
 * [Pandas](https://pandas.pydata.org/) - Used to edit and read CSV's
 * [PyQt5qt](https://www.qt.io/developers/) - Used to create a GUI more efficiently
 * [NP](http://cs231n.github.io/python-numpy-tutorial/) - Help with scientific calculations
+* [DRT Tools](https://sites.google.com/site/drttools/) - functions for DRT math
+* [Octave](https://www.gnu.org/software/octave/) - Functions for reading matlab code
 
 ## Contributing
 
@@ -84,10 +86,11 @@ No versioning control has been set up yet but I am working on having this work i
 ## Authors
 
 * **Jonathan Obenland** - *Initial work* - [Jonathan Obenland](https://github.com/jobenland)
-* **Nick Robinson** - *DRT* -[Nick Robinson](https://github.com/nickarobinson99)
+* **Nick Robinson** - *DRT and Mass Converter* -[Nick Robinson](https://github.com/nickarobinson99)
 
 ## Credit
 * **Flat Icon** - *Data mining Icon* - [FlatIcon](https://www.flaticon.com/authors/flat-icons)
+* ** DRT Tools** - *DRT math* - [DRTTools](https://sites.google.com/site/drttools/)
 ## License
 
 This project is licensed under the GPL License
