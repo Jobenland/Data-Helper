@@ -1,8 +1,5 @@
 # Data Converter and Analysis
 
-
-NEW -> use `pip install -r requirements.txt`
-
 This program is a collection of commently used tools when analyzing and manipulating data. I am working on a future option to have multi-threading due to the occasional unresponsive weapon
 
 This program was made with PyQt5
@@ -61,6 +58,8 @@ To ensure that all modules are loaded and everything is working. Launch the prog
 ## Running the program
 
 when `main.py` is ran, you will be greeted with 3 boxes on the left corresponding to the tools. Both `temperature dependence analysis` and `full cell data converter` both take a folder of Mdats and have varying options under them. Select location of the `mdat` files in a folder and select `start` and the progress bar to the right will update. for `XRD Converter` give the program a folder of `.out` files. *WARNING, XRD Converter will remove the headers, this CAN NOT be undone*
+
+Note: It is normal for program to become breifly "Unresponsive" during long operations. This is becuase I have not added multithreading yet
 
 ## Deployment
 
