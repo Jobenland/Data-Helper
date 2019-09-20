@@ -40,6 +40,20 @@ Automatic method
 pip install -r requirements.txt
 ```
 
+Install Octave for DRT
+
+```
+https://www.gnu.org/software/octave/
+```
+
+Adding Octave to System variables
+
+```
+Go to edit path and select edit
+add new line
+<install_path\octave\octave-<version>\mingw64\bin
+select apply and ok to close window
+```
 ## Running the tests
 
 To ensure that all modules are loaded and everything is working. Launch the program, If it launches with no errors, it is working properly 
