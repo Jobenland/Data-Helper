@@ -85,7 +85,8 @@ No versioning control has been set up yet but I am working on having this work i
 ## Authors
 
 * **Jonathan Obenland** - *GUI, Temp Dep, XRD and Full cell* - [Jonathan Obenland](https://github.com/jobenland)
-* **Nick Robinson** - *DRT and Mass Converter* -[Nick Robinson](https://github.com/nickarobinson99)
+* **Nick Robinson** - *DRT and Mass Converter* - [Nick Robinson](https://github.com/nickarobinson99)
+* **Ian Robinson** - *Backend work and testing* - [Ian Robinson](https://github.com/irobinso99)
 
 ## Credit
 * **Flat Icon** - *Data mining Icon* - [FlatIcon](https://www.flaticon.com/authors/flat-icons)
