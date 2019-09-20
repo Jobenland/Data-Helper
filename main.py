@@ -73,6 +73,7 @@ IMP_600_NEW = "OCV_IV_600"
 
 class Ui(QtWidgets.QMainWindow):
     
+    #main Window build with creation of the info bar
     def __init__(self):
         super(Ui, self).__init__()
         base = os.getcwd()
@@ -105,6 +106,8 @@ class Ui(QtWidgets.QMainWindow):
         self.mcStart.clicked.connect(self.mc)
         
         self.show()
+
+    #MASS Converter calls to the main class below
     def mc(self):
         base=os.getcwd()
         progressbarval = 0
@@ -117,8 +120,6 @@ class Ui(QtWidgets.QMainWindow):
             AGING = True
         else:
             AGING = False
-
-
         # This section grabs and parses the file import and export paths, creates FILE_LISt
         progressbarval += 10
         self.fcProgress_2.setValue(progressbarval)
@@ -127,7 +128,6 @@ class Ui(QtWidgets.QMainWindow):
             FILE_LIST = natsort.natsorted(os.listdir(RAW_PATH))
         EXPORT_PATH = self.mcExportPath.text() #JONATHON: You need to add this box/variable, this is for the folder it will output to
         IMPORT_PATH = RAW_PATH + '/Data'
-
         # Error checking for inputted paths
         progressbarval += 10
         self.fcProgress_2.setValue(progressbarval)
@@ -141,7 +141,6 @@ class Ui(QtWidgets.QMainWindow):
         else:
             if EXPORT_PATH:
                 os.mkdir(EXPORT_PATH)
-        
         # Checking keywords, and creating new_filelist based on keywords
         strkey = self.lineEdit.text().strip(' ') #Not sure if you have made the flags/keywords variable yet, but it needs to exist
         list_keywords = strkey.split(',')
@@ -152,13 +151,11 @@ class Ui(QtWidgets.QMainWindow):
             for file in FILE_LIST:
                 if word in file and '.mdat' in file:
                     new_filelist.append(file)
-
-        
         new_filelist = list(set(new_filelist)) #Removes duplicates from the filelist
         print(new_filelist)
         if IMPORT_PATH == '':
             IMPORT_PATH = RAW_PATH + '/Data'
-        
+
         fh = FileHandler(IMPORT_PATH, EXPORT_PATH, file_list=new_filelist)
         fh.unzipDirectory(FILE_LIST, RAW_PATH, IMPORT_PATH)
         
@@ -175,6 +172,7 @@ class Ui(QtWidgets.QMainWindow):
         GalvanoHolder = Galvanodynamic(['EMPTY'])
         progressbarval += 10
         self.fcProgress_2.setValue(progressbarval)
+        #shorting experiments that are inside the list of given files to the program
         for experiment in natsort.natsorted(finished_filelist):
             os.chdir(IMPORT_PATH + '/' + experiment)
             imp = None
@@ -237,8 +235,12 @@ class Ui(QtWidgets.QMainWindow):
         print(arc)
         os.chdir(base)
         self.infoWindow.setText(open('Information/idle.html').read())
+
+    #main class for the DRT program that requires the octave files in the main
+    #dir and then makes calls to the class listed below
     def DRT(self):
         base=os.getcwd()
+        #function that sets the information bar to the idle state
         self.infoWindow.setText(open('Information/drt.html').read())
         input_directory = self.drtFilePath.text()
         regularization = self.drtRegularization.text()
@@ -263,6 +265,8 @@ class Ui(QtWidgets.QMainWindow):
         print("DRT FINISHED")
         os.chdir(base)
         self.infoWindow.setText(open('Information/idle.html').read())
+
+    #the function that makes call to the full cell class listed below
     def fcSt(self):
         path = self.xrdFileText_2.text()
         csvname = self.fcCombine.text()
@@ -326,7 +330,7 @@ class Ui(QtWidgets.QMainWindow):
             self.infoWindow.setText(open('Information/idle.html').read())
 
 
-
+    #function that makes calls to the XRD class below
     def xrdSt(self):
         self.infoWindow.setText(open('Information/xrd.html').read())
         base = os.getcwd()
@@ -398,29 +402,36 @@ class Ui(QtWidgets.QMainWindow):
         td.generateSheets(newZDir,csvname)
         os.chdir(base)
         self.infoWindow.setText(open('Information/idle.html').read())
+
+    #update the file path window with the selected folder
     def getOutputFoldermc(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
         fileview = self.findChild(QtWidgets.QLineEdit, 'mcExportPath')
         fileview.setText(pathToWallpaperDir) 
+
+    #update the file path window with the selected folder
     def getMdatFoldermc(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
         fileview = self.findChild(QtWidgets.QLineEdit, 'mcFileText')
         fileview.setText(pathToWallpaperDir)
     
+    #update the file path window with the selected folder
     def getMdatFoldertd(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
         fileview = self.findChild(QtWidgets.QLineEdit, 'tdFileText')  
         fileview.setText(pathToWallpaperDir)
     
+    #update the file path window with the selected folder
     def getMdatFolderxrd(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
         fileview = self.findChild(QtWidgets.QLineEdit, 'xrdFileText')  
         fileview.setText(pathToWallpaperDir)
     
+    #update the file path window with the selected folder
     def getMdatFolderfc(self):
         pathToWallpaperDir = os.path.normpath(
             QFileDialog.getExistingDirectory(self))
@@ -428,14 +439,19 @@ class Ui(QtWidgets.QMainWindow):
         fileview = self.findChild(QtWidgets.QLineEdit, 'xrdFileText_2')  
         fileview.setText(pathToWallpaperDir)
 
+    #update the file path window with the selected folder
     def getMdatFolderdrt(self):
         pathToWallpaperDir = os.path.normpath(QFileDialog.getExistingDirectory(self))
         #TODO change object name once fixed
         fileview = self.findChild(QtWidgets.QLineEdit, 'drtFilePath')
         fileview.setText(pathToWallpaperDir)
+
+#handles the file for the MC converter
 class File_Handler:
     def __init__(self):
         print('initialized')   
+
+#gets the file in for the MC converter
 class File_In(File_Handler):
     def __init__(self, file_in, dir_out, is_sym=False, regularization=1e-4):
         
@@ -498,12 +514,17 @@ class File_In(File_Handler):
     
         #self.df = pd.DataFrame({'L': self.arr_h_f_comb[0][0],'h_1': self.arr_h_f_comb[0][1], 'f_0': self.arr_h_f_comb[1][0],'f_1': self.arr_h_f_comb[1][1]})
         #self.df.to_csv('/home/nick/Projects/DRTConverter/out.csv')
+
+    #finds nearest? Honestly no clue whats going on here but dont remove
     def find_nearest(self, array, value):
         array = np.asarray(array)
         idx = (np.abs(array - value)).argmin()
         return idx
 
+#the class that handles all the Full cell data extraction things called from the main UI class
 class fcConvert():
+
+    #constructor to build variables for later use in the program
     def __init__(self, path):
         self.filename = path
         self.arrayOfImpFiles = []
@@ -522,6 +543,7 @@ class fcConvert():
         self.actasr = []
         self.filename =[]
         self.otherthinglist = []
+
     #converts all mdats to a given zip
     def convertMdatToZip(self,files):
         pattern = '*.mdat'
@@ -633,12 +655,16 @@ class fcConvert():
                         correctedTime = time.mktime(dateTimeFormat.timetuple())
                         correctedTimeList.append(correctedTime)
                         timeMin = min(correctedTimeList)
+
             timeInSecounds = ([correctedTimeList[i]-correctedTimeList[0] for i in range(len(correctedTimeList))])
             dfTS.append(timeInSecounds)
             timeInHours = ([((correctedTimeList[i]-timeMin)/3600) for i in range(len(correctedTimeList))])
             dfTH.append(timeInHours)
             dfPPD.append(peakPowerDensityList)
-            dfABS.append(correctedTimeList)            
+            dfABS.append(correctedTimeList)
+
+        #creates the CSV
+        # TODO probably should make a new method for this            
         os.chdir(path)
         print("Creating the CSV...")
         fileN = 'GalvanoDynamic.csv'
@@ -682,6 +708,8 @@ class fcConvert():
 
                         dateTimeList.append(dateTimeFormat)
                         timeInSecounds.append(float(time.mktime(dateTimeFormat.timetuple())))
+
+        #TODO make a new method for csv creation
         for i in range(len(intTime)):
             intRelativeTime.append(intTime[i] - intTime[0])
         mintime = min(intRelativeTime)    
@@ -695,6 +723,7 @@ class fcConvert():
         df.to_csv(fileN,index = False)
 
     #gets the impedance files and gets the data from them
+    
     def impedanceFileReader(self,iL, files,intArea):
         os.chdir(files)
         path = files 
@@ -1128,6 +1157,8 @@ class tempConverter():
         return(startRange,endRange)
 
 class xrdConvert():
+
+    
     def __init__(self,path):
         self.filename = path
         self.arrayOfImpFiles = []
@@ -1192,6 +1223,7 @@ class xrdConvert():
             headerLess.writelines(dataToRemove)
             headerLess.close()
             print ("Header Successfully Removed")
+
 
     def xrdCsv(self,listOut):
         listOfCSV = []
@@ -1642,7 +1674,7 @@ class Impedance(FileHandler):
             endRange = -1
         if NG != [] or PG != []:
             j = (len(NG))
-            startRange = int(min(intZDoublePrime))
+            startRange = indexx
             endRange = startRange + 1
         try:
             return(startRange,endRange)
@@ -1678,25 +1710,29 @@ class Impedance(FileHandler):
                     startrange, endrange = self.getRange(Z2Prime)
                     
                     if endrange > 0:
-
-                        # IS THIS THIS RIGHT
                         ohmicZ2Prime = min([abs(i) for i in Z2Prime[startrange:endrange]])
-                        ###########################
-
                         mv1 = 0
                         mv2 = 0
-                        
-                        for values in Z2Prime[startrange:endrange]:
-                            if values < 0 and  not firstval:
-                                mv1 = values
-                                firstval = True
-                            if firstval and (values > mv1):
-                                ohmicZ2Prime = mv1
-                                print("New ohmic minimum found")
-                            else:
-                                mv1 = values
+                        firstval = False
+                        #for values in Z2Prime:
+                        intStart = int(startrange)
+                        intEnd = int(endrange)
+                        zDoublePrimeShort = Z2Prime[intStart:intEnd]
+                        zDoublePrimeABS = [abs(i) for i in zDoublePrimeShort]
+                        ohmicZDoublePrime = min(zDoublePrimeABS)
+
+                            #if values < 0 and  not firstval:
+                            #    mv1 = values
+                            #    #ohmicZ2Prime = mv1
+                            #    firstval = True
+                            #if firstval and (values > mv1):
+                            #    ohmicZ2Prime = mv1
+                            #    print("New ohmic minimum found")
+                            #    break
+                            #elif firstval == False:
+                                #mv1 = values
                     elif endrange == -1:
-                        ohmicZ2Prime = min([abs(i) for i in Z2Prime])
+                        ohmicZ2Prime = min(Z2Prime)
 
                     
 
@@ -1754,18 +1790,22 @@ class Impedance(FileHandler):
             mv1 = 0
             mv2 = 0
             firstval = False
-            for values in Z2Prime[startrange:endrange]:
-                if values < 0 and  not firstval:
-                    mv1 = values
-                    firstval = True
-                if firstval and (values > mv1):
-                    ohmicZ2Prime = mv1
-                    print("New ohmic minimum found")
-                    break
-                else:
-                    mv1 = values
+            intStart = int(startRange)
+            intEnd = int(endrange)
+            zDoublePrimeShort = Z2Prime[intStart:intEnd]
+            zDoublePrimeABS = [abs(i) for i in zDoublePrimeShort]
+            ohmicZDoublePrime = min(zDoublePrimeABS)
+            #for values in Z2Prime:
+            #    if values < 0 and  not firstval:
+            #        mv1 = values
+            #        firstval = True
+            #    if firstval and (values > mv1):
+            #        ohmicZ2Prime = mv1
+            #        print("New ohmic minimum found")
+            #    else:
+            #        mv1 = values
         elif endrange == -1:
-            ohmicZ2Prime = min([abs(i) for i in Z2Prime])
+            ohmicZ2Prime = min(Z2Prime)
         
         if ohmicZ2Prime in Z2Prime:
             ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
