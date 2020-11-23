@@ -1735,11 +1735,13 @@ class Impedance(FileHandler):
                         ohmicZ2Prime = min(Z2Prime)
 
                     
-
-                    if ohmicZ2Prime in Z2Prime:
-                        ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
-                    else:
-                        ohmicZPrimeIndex = Z2Prime.index(-ohmicZ2Prime)
+                    try:
+                        if ohmicZ2Prime in Z2Prime:
+                            ohmicZPrimeIndex = Z2Prime.index(ohmicZ2Prime)
+                        else:
+                            ohmicZPrimeIndex = Z2Prime.index(-ohmicZ2Prime)
+                    except ValueError:
+                        print("Sams terrible fuel cell almost broke the program but the smart developer fixed the issue")
 
                     ohmicMin = ZPrime[ohmicZPrimeIndex]
                     ASRMax = max(ZPrime[ohmicZPrimeIndex:])
